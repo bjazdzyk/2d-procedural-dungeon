@@ -1,0 +1,23 @@
+{
+  "name": "blob-hunter",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "BartoSz Jażdżyk",
+  "scripts": {
+    "dev": "electron-webpack dev",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+  },
+  "dependencies": {
+    "simplex-noise": "^3.0.1",
+    "source-map-support": "^0.5.16",
+    "three": "^0.141.0"
+  },
+  "devDependencies": {
+    "electron": "8.2.0",
+    "electron-builder": "^22.4.1",
+    "electron-webpack": "^2.8.2",
+    "webpack": "~4.42.1"
+  }
+}
