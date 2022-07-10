@@ -84,15 +84,16 @@ const separatedRooms = (n)=>{
 	engine.world.gravity.y = 0
 	engine.timing.timeScale = 0.5
 	 
-	// var render = Render.create({
-	// 	element: document.body,
-	// 	engine: engine,
-	// 	options: {
-	// 		width: _W,
-	// 		height: _H,
-	// 		wireframes: false
-	// 	}
-	// });
+	var render = Render.create({
+		element: document.body,
+		engine: engine,
+		options: {
+			width: _W,
+			height: _H,
+			showAngleIndicator: true,
+			wireframes: true
+		}
+	});
 
 	const boxes = {}
 
@@ -104,7 +105,7 @@ const separatedRooms = (n)=>{
 	}
 
 
-	//Render.lookAt(render, {min: { x: -_W/2, y: -_H/2 },max: { x: _W/2, y: _H/2 }});
+	Render.lookAt(render, {min: { x: -_W/2, y: -_H/2 },max: { x: _W/2, y: _H/2 }});
 
 
 
@@ -122,6 +123,7 @@ const separatedRooms = (n)=>{
 			let bodies = Composite.allBodies(engine.world);
 			let sleeping = bodies.filter((body) => body.isSleeping);
 			let isWorldSleeping = bodies.length === sleeping.length;
+
 			if(isWorldSleeping){
 				for(let i=0; i<n; i++){
 					const UL = boxes[i].vertices[0]//upLeft
@@ -130,7 +132,7 @@ const separatedRooms = (n)=>{
 					rooms[i].x = UL.x
 					rooms[i].y = DR.y
 					rooms[i].width = DR.x-UL.x
-					rooms[i].height = DR.y-UL.y
+					rooms[i].height = UL.y-DR.y
 				}
 				clearInterval(int)
 				resolve(rooms)
@@ -156,11 +158,8 @@ const loop = ()=>{
 	for(let i in rooms){
 		const r = rooms[i]
 		console.log(r.x, r.y, r.width, r.height)
-		ctx.fillStyle = "black"
 		ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 	}
-
-	loop()
 
 })()
 
