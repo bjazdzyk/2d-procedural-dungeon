@@ -13,8 +13,22 @@ canvas.width = _W
 canvas.height = _H
 
 
+const tileSize = 20
+const renderingFactor = 1.5
 
-const randPointInCircle =(radius)=>{
+
+
+const mod = (n, m)=>{
+	return ((n % m) + m) % m;
+}
+
+const floorTo = (n, m)=>{
+	return n-mod(n, m);
+
+}
+
+
+const randPointInCircle = (radius)=>{
 	const t = 2*Math.PI*Math.random()
 	const u = Math.random()*Math.random()
 	let r = null
@@ -53,11 +67,10 @@ class Room{
 
 
 const generateRooms = (n)=>{
-
 	const rooms = {}
 
 	for(let i=0; i<n; i++){
-		const rect = randRectInCircle(200, 10, 50, 10, 50)
+		const rect = randRectInCircle(200*renderingFactor, 15*renderingFactor, 50*renderingFactor, 15*renderingFactor, 50*renderingFactor)
 		
 		rooms[i] = new Room(...rect, i)
 
@@ -65,7 +78,22 @@ const generateRooms = (n)=>{
 	return rooms
 }
 
+const roundToGrid = (rooms, tileSize)=>{
+	const r = {}
+	for(let i in rooms){
+		
+		const x2 = floorTo(rooms[i].x+rooms[i].width, tileSize)
+		const y2 = floorTo(rooms[i].y+rooms[i].height, tileSize)
 
+		const x = floorTo(rooms[i].x, tileSize)
+		const y = floorTo(rooms[i].y, tileSize)
+
+
+		r[i] = new Room(x, y, x2-x, y2-y, rooms[i].id)
+
+	}
+	return(r)
+}
 
 const separatedRooms = (n)=>{
 
@@ -135,20 +163,15 @@ const separatedRooms = (n)=>{
 					rooms[i].height = UL.y-DR.y
 				}
 				clearInterval(int)
-				resolve(rooms)
+				resolve(roundToGrid(rooms, tileSize))
 			}
 		},500)
 	})
 }
 
 
-const loop = ()=>{
-	requestAnimationFrame(loop)
-	// _W = window.innerWidth
-	// _H = window.innerHeight
-	// canvas.width = _W
-	// canvas.height = _H
-}
+
+
 
 
 
@@ -157,8 +180,10 @@ const loop = ()=>{
 
 	for(let i in rooms){
 		const r = rooms[i]
-		console.log(r.x, r.y, r.width, r.height)
+		//console.log(r.x, r.y, r.width, r.height)
+		ctx.fillStyle = "darkcyan"
 		ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
+		ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 	}
 
 })()
