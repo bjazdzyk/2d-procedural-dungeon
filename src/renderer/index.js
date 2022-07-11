@@ -1,5 +1,8 @@
 import "./styles.css"
-import Matter from'matter-js'
+import Matter from 'matter-js'
+import triangulate from 'delaunay-triangulate';
+import {kruskal} from 'kruskal-mst'
+
 
 const canvas = document.createElement('canvas')
 canvas.setAttribute("id", 'c')
@@ -13,8 +16,11 @@ canvas.width = _W
 canvas.height = _H
 
 
-const tileSize = 20
-const renderingFactor = 1.5
+
+const dungeonRenderingFactor = 0.5
+const tileSize = 15 * dungeonRenderingFactor
+const genFactor = 1 * dungeonRenderingFactor
+const roomCount = 70
 
 
 
@@ -62,6 +68,18 @@ class Room{
 		this.width = width
 		this.height = height
 		this.id = id
+
+		this.oldW = this.width
+		this.oldH = this.height
+		this.center = {}
+		this.center.x = this.x+this.width/2
+		this.center.y = this.y+this.height/2
+
+		this.type = 'nope'
+	}
+	updateCenter(){
+		this.center.x = this.x+this.width/2
+		this.center.y = this.y+this.height/2
 	}
 }
 
@@ -70,7 +88,7 @@ const generateRooms = (n)=>{
 	const rooms = {}
 
 	for(let i=0; i<n; i++){
-		const rect = randRectInCircle(200*renderingFactor, 15*renderingFactor, 50*renderingFactor, 15*renderingFactor, 50*renderingFactor)
+		const rect = randRectInCircle(500*genFactor, 15*genFactor, 100*genFactor, 15*genFactor, 100*genFactor)
 		
 		rooms[i] = new Room(...rect, i)
 
@@ -90,6 +108,8 @@ const roundToGrid = (rooms, tileSize)=>{
 
 
 		r[i] = new Room(x, y, x2-x, y2-y, rooms[i].id)
+		r[i].oldW = rooms[i].width
+		r[i].oldH = rooms[i].height
 
 	}
 	return(r)
@@ -153,6 +173,7 @@ const separatedRooms = (n)=>{
 			let isWorldSleeping = bodies.length === sleeping.length;
 
 			if(isWorldSleeping){
+				let WHsum = 0
 				for(let i=0; i<n; i++){
 					const UL = boxes[i].vertices[0]//upLeft
 					const DR = boxes[i].vertices[2]//downRight
@@ -161,32 +182,118 @@ const separatedRooms = (n)=>{
 					rooms[i].y = DR.y
 					rooms[i].width = DR.x-UL.x
 					rooms[i].height = UL.y-DR.y
+
+					WHsum += rooms[i].width+Math.abs(rooms[i].height)
 				}
+
 				clearInterval(int)
-				resolve(roundToGrid(rooms, tileSize))
+				resolve({rooms: roundToGrid(rooms, tileSize), averageWH:WHsum/n})
 			}
 		},500)
 	})
+}
+
+const delunayTriangulation = (rooms)=>{
+
+	const points = []
+	const ids = []
+
+	let j=0
+	for(let i in rooms){
+		rooms[i].updateCenter()
+
+		ids.push(rooms[i].id)
+
+		points.push([])
+		points[j].push(rooms[i].center.x)
+		points[j].push(rooms[i].center.y)
+		j++
+	}
+	const triangles = triangulate(points)
+
+
+	const graph = {}
+
+
+	for(let t of triangles){
+		for(let i=0; i<3; i++){
+
+			if(!graph[t[i]]){
+				graph[t[i]] = {}
+			}
+			graph[t[i]][t[(i+1)%3]] = true
+			graph[t[i]][t[(i+2)%3]] = true
+
+		}
+	}
+
+
+	const idGraph = {}
+
+	for(let i in graph){
+		idGraph[ids[i]] = {}
+		for(let j in graph[i]){
+			idGraph[ids[i]][ids[j]] = true
+		}
+	}
+
+
+	return idGraph
 }
 
 
 
 
 
+const dungeon = async ()=>{
+	const d = await separatedRooms(roomCount)
 
+	const rooms = d.rooms
+	const av = d.averageWH
 
-(async ()=>{
-	const rooms = await separatedRooms(100)
+	const mainRooms = {}
 
 	for(let i in rooms){
 		const r = rooms[i]
 		//console.log(r.x, r.y, r.width, r.height)
-		ctx.fillStyle = "darkcyan"
+		const s = r.oldW+Math.abs(r.oldH)
+
+		if(s>=1.25*av){
+			rooms[i].type = 'main'
+			mainRooms[i] = rooms[i]
+			ctx.fillStyle = "red"
+		}else{
+			ctx.fillStyle = "darkcyan"
+		}
 		ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 		ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 	}
 
-})()
+	
+
+	const graph = delunayTriangulation(mainRooms)
+
+	console.log(graph)
+
+	ctx.strokeStyle = "black"
+	ctx.lineWidth = 1
+
+	for(let i in graph){
+		for(let j in graph[i]){
+
+			ctx.beginPath()
+			ctx.moveTo(rooms[i].center.x+_W/2, rooms[i].center.y+_H/2)
+			ctx.lineTo(rooms[j].center.x+_W/2, rooms[j].center.y+_H/2)
+			ctx.closePath()
+
+			ctx.stroke()
+
+		}
+	}
+
+}
+
+dungeon()
 
 
 

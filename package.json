@@ -10,6 +10,8 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
   "dependencies": {
+    "delaunay-triangulate": "^1.1.6",
+    "kruskal-mst": "^1.0.0",
     "matter-js": "^0.18.0",
     "simplex-noise": "^3.0.1",
     "source-map-support": "^0.5.16",
