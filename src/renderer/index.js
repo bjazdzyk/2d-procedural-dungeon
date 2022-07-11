@@ -221,8 +221,18 @@ const delunayTriangulation = (rooms)=>{
 			if(!graph[t[i]]){
 				graph[t[i]] = {}
 			}
-			graph[t[i]][t[(i+1)%3]] = true
-			graph[t[i]][t[(i+2)%3]] = true
+			const p1 = rooms[ids[t[i]]].center
+			const p2 = rooms[ids[t[(i+1)%3]]].center
+			const p3 = rooms[ids[t[(i+2)%3]]].center
+
+			const dx1 = Math.abs(p1.x - p2.x)
+			const dy1 = Math.abs(p1.y - p2.y)
+
+			const dx2 = Math.abs(p1.x - p3.x)
+			const dy2 = Math.abs(p1.y - p3.y)
+
+			graph[t[i]][t[(i+1)%3]] = Math.sqrt(dx1*dx1 + dy1*dy1)
+			graph[t[i]][t[(i+2)%3]] = Math.sqrt(dx2*dx2 + dy2*dy2)
 
 		}
 	}
@@ -233,12 +243,47 @@ const delunayTriangulation = (rooms)=>{
 	for(let i in graph){
 		idGraph[ids[i]] = {}
 		for(let j in graph[i]){
-			idGraph[ids[i]][ids[j]] = true
+			idGraph[ids[i]][ids[j]] = graph[i][j]
 		}
 	}
 
 
 	return idGraph
+}
+
+
+const kruskalMST = (graph)=>{
+
+	const edges = []
+
+	for(let i in graph){
+		for(let j in graph[i]){
+			if(j<i){
+				const w = graph[i][j]
+				edges.push({from:i, to:j, weight:w})
+			}
+		}
+	}
+
+	const mst = kruskal(edges)
+
+
+	const newGraph = {}
+
+	for(let e of mst){
+		if(!newGraph[e.from]){
+			newGraph[e.from] = {}
+		}
+		if(!newGraph[e.to]){
+			newGraph[e.to] = {}
+		}
+
+		newGraph[e.from][e.to] = e.weight
+		newGraph[e.to][e.from] = e.weight
+	}
+
+
+	return newGraph
 }
 
 
@@ -255,7 +300,6 @@ const dungeon = async ()=>{
 
 	for(let i in rooms){
 		const r = rooms[i]
-		//console.log(r.x, r.y, r.width, r.height)
 		const s = r.oldW+Math.abs(r.oldH)
 
 		if(s>=1.25*av){
@@ -271,9 +315,7 @@ const dungeon = async ()=>{
 
 	
 
-	const graph = delunayTriangulation(mainRooms)
-
-	console.log(graph)
+	const graph = kruskalMST(delunayTriangulation(mainRooms))
 
 	ctx.strokeStyle = "black"
 	ctx.lineWidth = 1
