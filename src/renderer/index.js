@@ -16,11 +16,32 @@ canvas.width = _W
 canvas.height = _H
 
 
-
-const dungeonRenderingFactor = 0.5
+const dungeonRenderingFactor = 0.4
 const tileSize = 15 * dungeonRenderingFactor
 const genFactor = 1 * dungeonRenderingFactor
 const roomCount = 70
+
+
+
+//grid
+
+// const gridSize = 60
+
+// ctx.strokeStyle = "gray"
+// for(let i=-gridSize; i<=gridSize; i++){
+// 	ctx.beginPath()
+
+// 	ctx.moveTo(_W/2+i*tileSize, _H/2-gridSize*tileSize)
+// 	ctx.lineTo(_W/2+i*tileSize, _H/2+gridSize*tileSize)
+
+// 	ctx.moveTo(_W/2-gridSize*tileSize, _H/2+i*tileSize)
+// 	ctx.lineTo(_W/2+gridSize*tileSize, _H/2+i*tileSize)
+
+// 	ctx.closePath()
+// 	ctx.stroke()
+// }
+// ctx.strokeStyle = "black"
+
 
 
 
@@ -31,6 +52,11 @@ const mod = (n, m)=>{
 const floorTo = (n, m)=>{
 	return n-mod(n, m);
 
+}
+
+
+const strCoords = (x, y)=>{
+	return `${x}:${y}`
 }
 
 
@@ -75,7 +101,7 @@ class Room{
 		this.center.x = this.x+this.width/2
 		this.center.y = this.y+this.height/2
 
-		this.type = 'nope'
+		this.type = 'ghost'
 	}
 	updateCenter(){
 		this.center.x = this.x+this.width/2
@@ -88,7 +114,7 @@ const generateRooms = (n)=>{
 	const rooms = {}
 
 	for(let i=0; i<n; i++){
-		const rect = randRectInCircle(500*genFactor, 15*genFactor, 100*genFactor, 15*genFactor, 100*genFactor)
+		const rect = randRectInCircle(500*genFactor, 45*genFactor, 150*genFactor, 45*genFactor, 150*genFactor)
 		
 		rooms[i] = new Room(...rect, i)
 
@@ -175,13 +201,14 @@ const separatedRooms = (n)=>{
 			if(isWorldSleeping){
 				let WHsum = 0
 				for(let i=0; i<n; i++){
-					const UL = boxes[i].vertices[0]//upLeft
-					const DR = boxes[i].vertices[2]//downRight
+					const UL = boxes[i].vertices[3]//upLeft
+					const DR = boxes[i].vertices[1]//downRight
 
 					rooms[i].x = UL.x
 					rooms[i].y = DR.y
 					rooms[i].width = DR.x-UL.x
-					rooms[i].height = UL.y-DR.y
+					rooms[i].height = Math.abs(DR.y-UL.y)
+					
 
 					WHsum += rooms[i].width+Math.abs(rooms[i].height)
 				}
@@ -270,6 +297,17 @@ const kruskalMST = (graph)=>{
 
 	const newGraph = {}
 
+	
+	for(let e of edges){
+		if(!mst.includes(e)){
+			const r = Math.random()
+			if(r>0.9){
+				mst.push(e)
+			}
+		}
+	}
+
+
 	for(let e of mst){
 		if(!newGraph[e.from]){
 			newGraph[e.from] = {}
@@ -283,7 +321,9 @@ const kruskalMST = (graph)=>{
 	}
 
 
-	return newGraph
+
+
+	return [newGraph, mst]
 }
 
 
@@ -302,36 +342,108 @@ const dungeon = async ()=>{
 		const r = rooms[i]
 		const s = r.oldW+Math.abs(r.oldH)
 
-		if(s>=1.25*av){
+		if(s>1.2*av){
 			rooms[i].type = 'main'
 			mainRooms[i] = rooms[i]
-			ctx.fillStyle = "red"
-		}else{
-			ctx.fillStyle = "darkcyan"
-		}
-		ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
-		ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
+			//ctx.fillStyle = "red"
+		}//else{
+		// 	ctx.fillStyle = "darkcyan"
+		// }
+		// ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
+		// ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 	}
 
 	
+	const dat = kruskalMST(delunayTriangulation(mainRooms))
+	const graph = dat[0]
+	const edges = dat[1]
+	
 
-	const graph = kruskalMST(delunayTriangulation(mainRooms))
+	// ctx.strokeStyle = "black"
+	// ctx.lineWidth = 1
 
-	ctx.strokeStyle = "black"
-	ctx.lineWidth = 1
+	// for(let i in graph){
+	// 	for(let j in graph[i]){
 
-	for(let i in graph){
-		for(let j in graph[i]){
+	// 		ctx.beginPath()
+	// 		ctx.moveTo(rooms[i].center.x+_W/2, rooms[i].center.y+_H/2)
+	// 		ctx.lineTo(rooms[j].center.x+_W/2, rooms[j].center.y+_H/2)
+	// 		ctx.closePath()
 
-			ctx.beginPath()
-			ctx.moveTo(rooms[i].center.x+_W/2, rooms[i].center.y+_H/2)
-			ctx.lineTo(rooms[j].center.x+_W/2, rooms[j].center.y+_H/2)
-			ctx.closePath()
+	// 		ctx.stroke()
 
-			ctx.stroke()
+	// 	}
+	// }
 
+
+	const dun = {
+		grid:{},
+		graph:graph,
+	}
+	
+	for(let r in rooms){
+		const room = rooms[r]
+		
+		for(let i=room.x/tileSize; i<(room.x+room.width)/tileSize; i++){
+			for(let j=room.y/tileSize; j<(room.y+room.height)/tileSize; j++){
+				dun.grid[strCoords(Math.floor(i), Math.floor(j))] = r
+				
+			}
 		}
 	}
+	
+	const corridors = []
+
+	for(let e of edges){
+
+		const x1 = Math.round(rooms[e.from].x/tileSize)
+		const w1 = Math.round(rooms[e.from].width/tileSize)
+		const x2 = Math.round(rooms[e.to].x/tileSize)
+		const w2 = Math.round(rooms[e.to].width/tileSize)
+
+		const y1 = Math.round(rooms[e.from].y/tileSize)
+		const h1 = Math.round(rooms[e.from].height/tileSize)
+		const y2 = Math.round(rooms[e.to].y/tileSize)
+		const h2 = Math.round(rooms[e.to].height/tileSize)
+
+
+
+
+		if(x1+w1 >= x2+3 && x2+w2 >= x1+3){
+			// console.log(x1 ,y1, w1, h1)
+			// console.log(x2 ,y2, w2, h2)
+			corridors.push([Math.max(x1, x2), Math.min(y1+h1, y2+h2), 3, Math.max(y1, y2)-Math.min(y1+h1, y2+h2)])
+			//console.log([Math.max(x1, x2), Math.min(y1+h1, y2+h2), 3, Math.max(y1, y2)-Math.min(y1+h1, y2+h2)])
+		}
+
+		if(y1+h1 >= y2+3 && y2+h2 >= y1+3){
+			corridors.push([Math.min(x1+w1, x2+w2), Math.max(y1, y2), Math.max(x1, x2)-Math.min(x1+w1, x2+w2), 3])
+		}
+	}
+	//console.log(corridors)
+
+
+	for(let i=-60; i<60; i++){
+		for(let j=-60; j<60; j++){
+			if(dun.grid[strCoords(i, j)]){
+				switch(rooms[dun.grid[strCoords(i, j)]].type){
+					case('ghost'):
+						ctx.fillStyle = "gray"
+						break
+					case('main'):
+						ctx.fillStyle = "darkblue"
+						break
+					default:
+						ctx.fillStyle = "red"
+				}
+				ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
+			}
+		}
+	}
+
+
+
+	console.log(dun)
 
 }
 
