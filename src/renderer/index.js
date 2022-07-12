@@ -359,8 +359,8 @@ const dungeon = async ()=>{
 	const edges = dat[1]
 	
 
-	// ctx.strokeStyle = "black"
-	// ctx.lineWidth = 1
+	ctx.strokeStyle = "black"
+	ctx.lineWidth = 1
 
 	// for(let i in graph){
 	// 	for(let j in graph[i]){
@@ -373,7 +373,7 @@ const dungeon = async ()=>{
 	// 		ctx.stroke()
 
 	// 	}
-	// }
+	// }/////
 
 
 	const dun = {
@@ -406,35 +406,64 @@ const dungeon = async ()=>{
 		const y2 = Math.round(rooms[e.to].y/tileSize)
 		const h2 = Math.round(rooms[e.to].height/tileSize)
 
+		const cx1 = Math.round(rooms[e.from].center.x/tileSize)
+		const cy1 = Math.round(rooms[e.from].center.y/tileSize)
+		const cx2 = Math.round(rooms[e.to].center.x/tileSize)
+		const cy2 = Math.round(rooms[e.to].center.y/tileSize)
 
+		const dx = Math.abs(cx1-cx2)
+		const dy = Math.abs(cy1-cy2)
 
 
 		if(x1+w1 >= x2+3 && x2+w2 >= x1+3){
-			// console.log(x1 ,y1, w1, h1)
-			// console.log(x2 ,y2, w2, h2)
 			corridors.push([Math.max(x1, x2), Math.min(y1+h1, y2+h2), 3, Math.max(y1, y2)-Math.min(y1+h1, y2+h2)])
-			//console.log([Math.max(x1, x2), Math.min(y1+h1, y2+h2), 3, Math.max(y1, y2)-Math.min(y1+h1, y2+h2)])
-		}
 
-		if(y1+h1 >= y2+3 && y2+h2 >= y1+3){
+		}else if(y1+h1 >= y2+3 && y2+h2 >= y1+3){
 			corridors.push([Math.min(x1+w1, x2+w2), Math.max(y1, y2), Math.max(x1, x2)-Math.min(x1+w1, x2+w2), 3])
+
+		}else{
+			console.log(cx1, cy1, cx2, cy2)
+			corridors.push([Math.min(cx1, cx2), Math.min(cy1, cy2)-2, dx, 3])
+			corridors.push([Math.min(cx1, cx2)-1, Math.min(cy1, cy2)-2, 3, dy])
+			corridors.push([Math.min(cx1, cx2)-1, Math.max(cy1, cy2)-2, dx+3, 3])
+			corridors.push([Math.max(cx1, cx2)-1, Math.min(cy1, cy2)-2, 3, dy])
+
+		}
+	}
+	
+
+	for(let c of corridors){
+		for(let i=c[0]; i<c[0]+c[2]; i++){
+			for(let j=c[1]; j<c[1]+c[3]; j++){
+				if(dun.grid[strCoords(i, j)]){
+
+					if(rooms[dun.grid[strCoords(i, j)]]){
+						if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
+							rooms[dun.grid[strCoords(i, j)]].type = 'corridor'
+						}
+					}
+
+				}else{
+					dun.grid[strCoords(i, j)] = 'C'
+				}
+			}
 		}
 	}
 	//console.log(corridors)
-
-
+	//rendering
 	for(let i=-60; i<60; i++){
 		for(let j=-60; j<60; j++){
 			if(dun.grid[strCoords(i, j)]){
-				switch(rooms[dun.grid[strCoords(i, j)]].type){
-					case('ghost'):
-						ctx.fillStyle = "gray"
-						break
-					case('main'):
-						ctx.fillStyle = "darkblue"
-						break
-					default:
-						ctx.fillStyle = "red"
+				if(dun.grid[strCoords(i, j)] == 'C'){
+					ctx.fillStyle = "cyan"
+				}else if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
+					ctx.fillStyle = "white"
+				}else if(rooms[dun.grid[strCoords(i, j)]].type == 'main'){
+					ctx.fillStyle = "green"
+				}else if(rooms[dun.grid[strCoords(i, j)]].type == 'corridor'){
+					ctx.fillStyle = "skyblue"
+				}else{
+					ctx.fillStyle = "red"
 				}
 				ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 			}
