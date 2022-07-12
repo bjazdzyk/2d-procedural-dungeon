@@ -16,7 +16,7 @@ canvas.width = _W
 canvas.height = _H
 
 
-const dungeonRenderingFactor = 0.5
+const dungeonRenderingFactor = 0.45
 const tileSize = 15 * dungeonRenderingFactor
 const genFactor = 1 * dungeonRenderingFactor
 const roomCount = 70
@@ -183,7 +183,7 @@ const separatedRooms = (n)=>{
 
 
 
-	Engine.run(engine);	
+	Matter.Runner.run(engine)
 	//Render.run(render);
 
 	return new Promise((resolve,reject)=>{
@@ -212,7 +212,6 @@ const separatedRooms = (n)=>{
 
 					WHsum += rooms[i].width+Math.abs(rooms[i].height)
 				}
-
 				clearInterval(int)
 				resolve({rooms: roundToGrid(rooms, tileSize), averageWH:WHsum/n})
 			}
@@ -359,17 +358,34 @@ const dungeon = async (debugDraw = 0)=>{
 
 	
 	const dun = {
+		minX:100,
+		minY:100,
+		maxX:-100,
+		maxY:-100,
 		grid:{},
 		graph:graph,
-		roomTypes:{}
+		roomTypes:{},
+		walls:{}
 	}
 	
+
+
 	for(let r in rooms){
 		const room = rooms[r]
 		
 		for(let i=room.x/tileSize; i<(room.x+room.width)/tileSize; i++){
 			for(let j=room.y/tileSize; j<(room.y+room.height)/tileSize; j++){
-				dun.grid[strCoords(Math.floor(i), Math.floor(j))] = r
+				i = Math.round(i)
+				j = Math.round(j)
+
+				dun.minX = Math.min(dun.minX, i)
+				dun.minY = Math.min(dun.minY, j)
+				dun.maxX = Math.max(dun.maxX, i)
+				dun.maxY = Math.max(dun.maxY, j)
+
+
+
+				dun.grid[strCoords(i, j)] = r
 				
 			}
 		}
@@ -433,57 +449,137 @@ const dungeon = async (debugDraw = 0)=>{
 		}
 	}
 
-	for(let i in rooms){
-		const r = Math.random()
+	// for(let i in rooms){
+	// 	const r = Math.random()
 		
-		if(rooms[i].type == 'ghost'){
-			if(r>0.90){
-				console.log(rooms[i].type)
-				rooms[i].type = 'secret'
+	// 	if(rooms[i].type == 'ghost'){
+	// 		if(r>0.75){
+	// 			rooms[i].type = 'secret'
+	// 		}
+	// 	}
+	// 	dun.roomTypes[i] = rooms[i].type
+	// }
+
+
+	for(let i=dun.minX; i<=dun.maxX+1; i++){
+		for(let j=dun.minY; j<=dun.maxY+1; j++){
+			const cell = dun.grid[strCoords(i, j)]
+			const Ucell = dun.grid[strCoords(i, j-1)]
+			const Lcell = dun.grid[strCoords(i-1, j)]
+
+			let type
+			let Utype
+			let Ltype
+
+			if(cell == 'C'){
+				type = 'C'
+			}else if(!cell){
+				type = 'block'
+			}else{
+				type = rooms[cell].type
 			}
+
+			if(Ucell == 'C'){
+				Utype = 'C'
+			}else if(!Ucell){
+				Utype = 'block'
+			}else{
+				Utype = rooms[Ucell].type
+			}
+
+			if(Lcell == 'C'){
+				Ltype = 'C'
+			}else if(!Lcell){
+				Ltype = 'block'
+			}else{
+				Ltype = rooms[Lcell].type
+			}
+
+
+			dun.walls[strCoords(i, j)] = {v:0, h:0}//vertical, horizontal
+
+
+			if((cell!=Ucell &&(type=='main'||Utype=='main'))||
+				(type=='block' || type=='ghost') && (Utype!='ghost' && Utype!='block')||
+				(type!='block' && type!='ghost') && (Utype=='ghost' || Utype=='block')){
+				dun.walls[strCoords(i, j)].h = 1
+			}
+
+			if((cell!=Lcell &&(type=='main'||Ltype=='main'))||
+				(type=='block' || type=='ghost') && (Ltype!='ghost' && Ltype!='block')||
+				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block')){
+				dun.walls[strCoords(i, j)].v = 1
+			}
+			
+
 		}
-		dun.roomTypes[i] = rooms[i].type
 	}
+
+	ctx.strokeStyle = "brown"
+	ctx.lineWidth = 3
 
 	//rendering
 	if(debugDraw){
-		for(let i=-60; i<60; i++){
-			for(let j=-60; j<60; j++){
+		for(let i=dun.minX; i<=dun.maxX+1; i++){
+			for(let j=dun.minY; j<=dun.maxY+1; j++){
 				if(dun.grid[strCoords(i, j)]){
 					if(dun.grid[strCoords(i, j)] == 'C'){
 						ctx.fillStyle = "cyan"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'secret'){
 						ctx.fillStyle = "lightgray"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'main'){
 						ctx.fillStyle = "green"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'corridor'){
 						ctx.fillStyle = "skyblue"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
 						ctx.fillStyle = "white"
 					}else{
 						ctx.fillStyle = "red"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}
-					ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
+
+					
+				}
+
+				if(dun.walls[strCoords(i, j)]){
+					if(dun.walls[strCoords(i, j)].h){
+						ctx.beginPath()
+						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
+						ctx.lineTo((i+1)*tileSize+_W/2, j*tileSize+_H/2)
+						ctx.closePath()
+						ctx.stroke()
+					}
+					if(dun.walls[strCoords(i, j)].v){
+						ctx.beginPath()
+						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
+						ctx.lineTo(i*tileSize+_W/2, (j+1)*tileSize+_H/2)
+						ctx.closePath()
+						ctx.stroke()
+					}
 				}
 			}
 		}
 
 
-		ctx.strokeStyle = "black"
-		ctx.lineWidth = 1
+		// ctx.strokeStyle = "black"
+		// ctx.lineWidth = 1
 		
-		for(let i in graph){
-			for(let j in graph[i]){
+		// for(let i in graph){
+		// 	for(let j in graph[i]){
 
-				ctx.beginPath()
-				ctx.moveTo(rooms[i].center.x+_W/2, rooms[i].center.y+_H/2)
-				ctx.lineTo(rooms[j].center.x+_W/2, rooms[j].center.y+_H/2)
-				ctx.closePath()
+		// 		ctx.beginPath()
+		// 		ctx.moveTo(rooms[i].center.x+_W/2, rooms[i].center.y+_H/2)
+		// 		ctx.lineTo(rooms[j].center.x+_W/2, rooms[j].center.y+_H/2)
+		// 		ctx.closePath()
 
-				ctx.stroke()
+		// 		ctx.stroke()
 
-			}
-		}
+		// 	}
+		// }//
 	}
 
 
