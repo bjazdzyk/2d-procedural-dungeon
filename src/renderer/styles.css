@@ -1,9 +1,10 @@
 body{
 	margin: 0px;
+	overflow: hidden;
 }
 canvas{
 	position: fixed;
 }
 #c{
-	z-index: 10;
+	z-index: 100;
 }

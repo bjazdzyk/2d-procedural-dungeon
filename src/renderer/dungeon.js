@@ -16,7 +16,7 @@ canvas.width = _W
 canvas.height = _H
 
 
-const dungeonRenderingFactor = 0.4
+const dungeonRenderingFactor = 0.5
 const tileSize = 15 * dungeonRenderingFactor
 const genFactor = 1 * dungeonRenderingFactor
 const roomCount = 70
@@ -361,6 +361,7 @@ const dungeon = async (debugDraw = 0)=>{
 	const dun = {
 		grid:{},
 		graph:graph,
+		roomTypes:{}
 	}
 	
 	for(let r in rooms){
@@ -411,6 +412,7 @@ const dungeon = async (debugDraw = 0)=>{
 
 		}
 	}
+
 	
 
 	for(let c of corridors){
@@ -431,6 +433,18 @@ const dungeon = async (debugDraw = 0)=>{
 		}
 	}
 
+	for(let i in rooms){
+		const r = Math.random()
+		
+		if(rooms[i].type == 'ghost'){
+			if(r>0.90){
+				console.log(rooms[i].type)
+				rooms[i].type = 'secret'
+			}
+		}
+		dun.roomTypes[i] = rooms[i].type
+	}
+
 	//rendering
 	if(debugDraw){
 		for(let i=-60; i<60; i++){
@@ -438,12 +452,14 @@ const dungeon = async (debugDraw = 0)=>{
 				if(dun.grid[strCoords(i, j)]){
 					if(dun.grid[strCoords(i, j)] == 'C'){
 						ctx.fillStyle = "cyan"
-					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
-						ctx.fillStyle = "white"
+					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'secret'){
+						ctx.fillStyle = "lightgray"
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'main'){
 						ctx.fillStyle = "green"
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'corridor'){
 						ctx.fillStyle = "skyblue"
+					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
+						ctx.fillStyle = "white"
 					}else{
 						ctx.fillStyle = "red"
 					}
@@ -452,7 +468,7 @@ const dungeon = async (debugDraw = 0)=>{
 			}
 		}
 
-		
+
 		ctx.strokeStyle = "black"
 		ctx.lineWidth = 1
 		
@@ -469,7 +485,8 @@ const dungeon = async (debugDraw = 0)=>{
 			}
 		}
 	}
-	
+
+
 	return dun
 
 }
