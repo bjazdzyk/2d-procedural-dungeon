@@ -539,16 +539,16 @@ const dungeon = async (debugDraw = 0)=>{
 		}
 	}
 
-	// for(let i in rooms){
-	// 	const r = Math.random()
+	for(let i in rooms){
+		const r = Math.random()
 		
-	// 	if(rooms[i].type == 'ghost'){
-	// 		if(r>0.75){
-	// 			rooms[i].type = 'secret'
-	// 		}
-	// 	}
-	// 	dun.roomTypes[i] = rooms[i].type
-	// }
+		if(rooms[i].type == 'ghost'){
+			if(r>0.75){
+				rooms[i].type = 'secret'
+			}
+		}
+		dun.roomTypes[i] = rooms[i].type
+	}
 
 
 	for(let i=dun.minX; i<=dun.maxX+1; i++){
@@ -590,21 +590,35 @@ const dungeon = async (debugDraw = 0)=>{
 			}
 
 
-			if((cell!=Ucell &&(type=='main'||Utype=='main'))||
-				(type=='block' || type=='ghost') && (Utype!='ghost' && Utype!='block')||
-				(type!='block' && type!='ghost') && (Utype=='ghost' || Utype=='block')){
+			if(cell!=Ucell &&((type=='main'||Utype=='main')||
+				(type=='block' || type=='ghost' || type=='secret') && (Utype!='ghost' && Utype!='block')||
+				(type!='block' && type!='ghost') && (Utype=='ghost' || Utype=='block' || Utype=='secret'))){
 				
 				if(!dun.walls[strCoords(i, j)].h){
 					dun.walls[strCoords(i, j)].h = 1
 				}
 			}
 
-			if((cell!=Lcell &&(type=='main'||Ltype=='main'))||
-				(type=='block' || type=='ghost') && (Ltype!='ghost' && Ltype!='block')||
-				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block')){
+			if(cell!=Ucell &&(type=='secret'||Utype=='secret') &&
+				((type!='block' && type!='ghost' && type!='secret') || (Utype!='ghost' && Utype!='block' && Utype!='secret'))){
+				dun.walls[strCoords(i, j)].h = 3
+			}
+
+
+
+
+
+			if(cell!=Lcell &&(((type=='main'||Ltype=='main'))||
+				(type=='block' || type=='ghost' || type=='secret') && (Ltype!='ghost' && Ltype!='block')||
+				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block' || Ltype=='secret'))){
 				if(!dun.walls[strCoords(i, j)].v){
 					dun.walls[strCoords(i, j)].v = 1
 				}
+			}
+
+			if(cell!=Lcell &&(type=='secret'||Ltype=='secret') &&
+				((type!='block' && type!='ghost' && type!='secret') || (Ltype!='ghost' && Ltype!='block' && Ltype!='secret'))){
+				dun.walls[strCoords(i, j)].v = 3
 			}
 			
 
@@ -645,8 +659,10 @@ const dungeon = async (debugDraw = 0)=>{
 					if(dun.walls[strCoords(i, j)].h){
 						if(dun.walls[strCoords(i, j)].h==2){
 							ctx.strokeStyle = "black"
+						}else if(dun.walls[strCoords(i, j)].h==3){
+							ctx.strokeStyle = 'gray'
 						}else{
-							ctx.strokeStyle = "gray"
+							ctx.strokeStyle = "brown"
 						}
 						ctx.beginPath()
 						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
@@ -657,8 +673,10 @@ const dungeon = async (debugDraw = 0)=>{
 					if(dun.walls[strCoords(i, j)].v){
 						if(dun.walls[strCoords(i, j)].v==2){
 							ctx.strokeStyle = "black"
+						}else if(dun.walls[strCoords(i, j)].v==3){
+							ctx.strokeStyle = 'gray'
 						}else{
-							ctx.strokeStyle = "gray"
+							ctx.strokeStyle = "brown"
 						}
 						ctx.beginPath()
 						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
