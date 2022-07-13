@@ -417,14 +417,104 @@ const dungeon = async (debugDraw = 0)=>{
 		if(x1+w1 >= x2+3 && x2+w2 >= x1+3){
 			corridors.push([Math.max(x1, x2), Math.min(y1+h1, y2+h2), 3, Math.max(y1, y2)-Math.min(y1+h1, y2+h2)])
 
+
+			if(!dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2))]){
+				dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2))] = {}
+			}if(!dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2) + Math.max(y1, y2)-Math.min(y1+h1, y2+h2))]){
+				dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2) + Math.max(y1, y2)-Math.min(y1+h1, y2+h2))] = {}
+			}
+			dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2))].h = 2
+			dun.walls[strCoords(Math.max(x1, x2)+1, Math.min(y1+h1, y2+h2) + Math.max(y1, y2)-Math.min(y1+h1, y2+h2))].h = 2
+
+
 		}else if(y1+h1 >= y2+3 && y2+h2 >= y1+3){
 			corridors.push([Math.min(x1+w1, x2+w2), Math.max(y1, y2), Math.max(x1, x2)-Math.min(x1+w1, x2+w2), 3])
 
+
+			if(!dun.walls[strCoords(Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)]){
+				dun.walls[strCoords(Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)] = {}
+			}if(!dun.walls[strCoords(Math.min(x1+w1, x2+w2) + Math.max(x1, x2)-Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)]){
+				dun.walls[strCoords(Math.min(x1+w1, x2+w2) + Math.max(x1, x2)-Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)] = {}
+			}
+			dun.walls[strCoords(Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)].v = 2
+			dun.walls[strCoords(Math.min(x1+w1, x2+w2) + Math.max(x1, x2)-Math.min(x1+w1, x2+w2), Math.max(y1, y2)+1)].v = 2
+
+
 		}else{
-			corridors.push([Math.min(cx1, cx2), Math.min(cy1, cy2)-2, dx, 3])
+			corridors.push([Math.min(cx1, cx2)-1, Math.min(cy1, cy2)-2, dx, 3])
 			corridors.push([Math.min(cx1, cx2)-1, Math.min(cy1, cy2)-2, 3, dy])
 			corridors.push([Math.min(cx1, cx2)-1, Math.max(cy1, cy2)-2, dx+3, 3])
 			corridors.push([Math.max(cx1, cx2)-1, Math.min(cy1, cy2)-2, 3, dy])
+
+			let state
+
+			if(cx1<cx2 && cy1<cy2){//1 UL
+				if(!dun.walls[strCoords(cx1, y1+h1)]){
+					dun.walls[strCoords(cx1, y1+h1)] = {}
+				}if(!dun.walls[strCoords(x1+w1, cy1-1)]){
+					dun.walls[strCoords(x1+w1, cy1-1)] = {}
+				}if(!dun.walls[strCoords(cx2, y2)]){
+					dun.walls[strCoords(cx2, y2)] = {}
+				}if(!dun.walls[strCoords(x2, cy2-1)]){
+					dun.walls[strCoords(x2, cy2-1)] = {}
+				}
+
+				dun.walls[strCoords(cx1, y1+h1)].h = 2
+				dun.walls[strCoords(x1+w1, cy1-1)].v = 2
+				dun.walls[strCoords(cx2, y2)].h = 2
+				dun.walls[strCoords(x2, cy2-1)].v = 2
+
+			}else if(cx1>=cx2 && cy1<cy2){//1 UR
+				if(!dun.walls[strCoords(cx1, y1+h1)]){
+					dun.walls[strCoords(cx1, y1+h1)] = {}
+				}if(!dun.walls[strCoords(x2+w2, cy2-1)]){
+					dun.walls[strCoords(x2+w2, cy2-1)] = {}
+				}if(!dun.walls[strCoords(cx2, y2)]){
+					dun.walls[strCoords(cx2, y2)] = {}
+				}if(!dun.walls[strCoords(x1, cy1-1)]){
+					dun.walls[strCoords(x1, cy1-1)] = {}
+				}
+
+				dun.walls[strCoords(cx1, y1+h1)].h = 2
+				dun.walls[strCoords(x2+w2, cy2-1)].v = 2
+				dun.walls[strCoords(cx2, y2)].h = 2
+				dun.walls[strCoords(x1, cy1-1)].v = 2
+
+			}else if(cx1>=cx2 && cy1>=cy1){//1 DR
+				if(!dun.walls[strCoords(cx1, y1)]){
+					dun.walls[strCoords(cx1, y1)] = {}
+				}if(!dun.walls[strCoords(x2+w2, cy2-1)]){
+					dun.walls[strCoords(x2+w2, cy2-1)] = {}
+				}if(!dun.walls[strCoords(cx2, y2+h2)]){
+					dun.walls[strCoords(cx2, y2+h2)] = {}
+				}if(!dun.walls[strCoords(x1, cy1-1)]){
+					dun.walls[strCoords(x1, cy1-1)] = {}
+				}
+
+				dun.walls[strCoords(cx1, y1)].h = 2
+				dun.walls[strCoords(x2+w2, cy2-1)].v = 2
+				dun.walls[strCoords(cx2, y2+h2)].h = 2
+				dun.walls[strCoords(x1, cy1-1)].v = 2
+
+			}else{//1 DL
+				if(!dun.walls[strCoords(cx1, y1)]){
+					dun.walls[strCoords(cx1, y1)] = {}
+				}if(!dun.walls[strCoords(x2, cy2-1)]){
+					dun.walls[strCoords(x2, cy2-1)] = {}
+				}if(!dun.walls[strCoords(cx2, y2+h2)]){
+					dun.walls[strCoords(cx2, y2+h2)] = {}
+				}if(!dun.walls[strCoords(x1+w1, cy1-1)]){
+					dun.walls[strCoords(x1+w1, cy1-1)] = {}
+				}
+
+				dun.walls[strCoords(cx1, y1)].h = 2
+				dun.walls[strCoords(x2, cy2-1)].v = 2
+				dun.walls[strCoords(cx2, y2+h2)].h = 2
+				dun.walls[strCoords(x1+w1, cy1-1)].v = 2
+
+			}
+
+
 
 		}
 	}
@@ -495,27 +585,33 @@ const dungeon = async (debugDraw = 0)=>{
 				Ltype = rooms[Lcell].type
 			}
 
-
-			dun.walls[strCoords(i, j)] = {v:0, h:0}//vertical, horizontal
+			if(!dun.walls[strCoords(i, j)]){
+				dun.walls[strCoords(i, j)] = {}//vertical, horizontal
+			}
 
 
 			if((cell!=Ucell &&(type=='main'||Utype=='main'))||
 				(type=='block' || type=='ghost') && (Utype!='ghost' && Utype!='block')||
 				(type!='block' && type!='ghost') && (Utype=='ghost' || Utype=='block')){
-				dun.walls[strCoords(i, j)].h = 1
+				
+				if(!dun.walls[strCoords(i, j)].h){
+					dun.walls[strCoords(i, j)].h = 1
+				}
 			}
 
 			if((cell!=Lcell &&(type=='main'||Ltype=='main'))||
 				(type=='block' || type=='ghost') && (Ltype!='ghost' && Ltype!='block')||
 				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block')){
-				dun.walls[strCoords(i, j)].v = 1
+				if(!dun.walls[strCoords(i, j)].v){
+					dun.walls[strCoords(i, j)].v = 1
+				}
 			}
 			
 
 		}
 	}
 
-	ctx.strokeStyle = "brown"
+	ctx.strokeStyle = "gray"
 	ctx.lineWidth = 3
 
 	//rendering
@@ -533,7 +629,7 @@ const dungeon = async (debugDraw = 0)=>{
 						ctx.fillStyle = "green"
 						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'corridor'){
-						ctx.fillStyle = "skyblue"
+						ctx.fillStyle = "cyan"//skyblue
 						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'ghost'){
 						ctx.fillStyle = "white"
@@ -547,6 +643,11 @@ const dungeon = async (debugDraw = 0)=>{
 
 				if(dun.walls[strCoords(i, j)]){
 					if(dun.walls[strCoords(i, j)].h){
+						if(dun.walls[strCoords(i, j)].h==2){
+							ctx.strokeStyle = "black"
+						}else{
+							ctx.strokeStyle = "gray"
+						}
 						ctx.beginPath()
 						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
 						ctx.lineTo((i+1)*tileSize+_W/2, j*tileSize+_H/2)
@@ -554,6 +655,11 @@ const dungeon = async (debugDraw = 0)=>{
 						ctx.stroke()
 					}
 					if(dun.walls[strCoords(i, j)].v){
+						if(dun.walls[strCoords(i, j)].v==2){
+							ctx.strokeStyle = "black"
+						}else{
+							ctx.strokeStyle = "gray"
+						}
 						ctx.beginPath()
 						ctx.moveTo(i*tileSize+_W/2, j*tileSize+_H/2)
 						ctx.lineTo(i*tileSize+_W/2, (j+1)*tileSize+_H/2)
