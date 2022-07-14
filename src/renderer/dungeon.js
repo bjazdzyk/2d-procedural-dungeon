@@ -356,6 +356,7 @@ const dungeon = async (debugDraw = 0)=>{
 	let keyR = 2
 
 
+
 	let startPoint = mainRooms[keys[startR]].center
 	let endPoint = mainRooms[keys[endR]].center
 	let keyRoomId = keys[keyR]
@@ -403,9 +404,13 @@ const dungeon = async (debugDraw = 0)=>{
 				dun.maxX = Math.max(dun.maxX, i)
 				dun.maxY = Math.max(dun.maxY, j)
 
-
-
-				dun.grid[strCoords(i, j)] = r
+				if(!dun.grid[strCoords(i, j)]){
+					dun.grid[strCoords(i, j)] = r
+				}else{
+					if(rooms[r].type =='main'){
+						dun.grid[strCoords(i, j)] = r
+					}
+				}
 				
 			}
 		}
