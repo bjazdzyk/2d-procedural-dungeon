@@ -349,6 +349,22 @@ const dungeon = async (debugDraw = 0)=>{
 		// ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 		// ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
 	}
+	const keys = Object.keys(mainRooms)
+
+	const startR = 0
+	let endR = 1
+	let keyR = 2
+
+
+	let startPoint = mainRooms[keys[startR]].center
+	let endPoint = mainRooms[keys[endR]].center
+	let keyRoomId = keys[keyR]
+
+	const startx = Math.round(startPoint.x/tileSize)
+	const starty = Math.round(startPoint.y/tileSize)
+	const endx = Math.round(endPoint.x/tileSize)
+	const endy = Math.round(endPoint.y/tileSize)
+
 
 	
 	const dat = kruskalMST(delunayTriangulation(mainRooms))
@@ -362,13 +378,17 @@ const dungeon = async (debugDraw = 0)=>{
 		minY:100,
 		maxX:-100,
 		maxY:-100,
+		startX:startx,
+		startY:starty,
+		endX:endx,
+		endY:endy,
+		KRid:keyRoomId,
 		grid:{},
 		graph:graph,
 		roomTypes:{},
 		walls:{}
 	}
 	
-
 
 	for(let r in rooms){
 		const room = rooms[r]
@@ -613,7 +633,7 @@ const dungeon = async (debugDraw = 0)=>{
 				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block' || Ltype=='secret'))){
 				if(!dun.walls[strCoords(i, j)].v){
 					dun.walls[strCoords(i, j)].v = 1
-				}
+				}//
 			}
 
 			if(cell!=Lcell &&(type=='secret'||Ltype=='secret') &&
@@ -633,7 +653,10 @@ const dungeon = async (debugDraw = 0)=>{
 		for(let i=dun.minX; i<=dun.maxX+1; i++){
 			for(let j=dun.minY; j<=dun.maxY+1; j++){
 				if(dun.grid[strCoords(i, j)]){
-					if(dun.grid[strCoords(i, j)] == 'C'){
+					if(dun.grid[strCoords(i, j)] == dun.KRid){
+						ctx.fillStyle = "lightgreen"
+						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
+					}else if(dun.grid[strCoords(i, j)] == 'C'){
 						ctx.fillStyle = "cyan"
 						ctx.fillRect(i*tileSize+_W/2, j*tileSize+_H/2, tileSize-1, tileSize-1 )
 					}else if(rooms[dun.grid[strCoords(i, j)]].type == 'secret'){
@@ -704,6 +727,16 @@ const dungeon = async (debugDraw = 0)=>{
 
 		// 	}
 		// }//
+
+
+
+
+		ctx.fillStyle = "blue"
+		ctx.fillRect(dun.startX*tileSize+_W/2, dun.startY*tileSize+_H/2, tileSize-1, tileSize-1)
+		ctx.fillStyle = "red"
+		ctx.fillRect(dun.endX*tileSize+_W/2, dun.endY*tileSize+_H/2, tileSize-1, tileSize-1)
+
+
 	}
 
 

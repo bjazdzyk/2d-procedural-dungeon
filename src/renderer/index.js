@@ -1,5 +1,6 @@
-
 import Dungeon from './dungeon.js'
+
+
 (async ()=>{
 	const D = await Dungeon(1)
 
