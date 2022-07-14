@@ -610,15 +610,17 @@ const dungeon = async (debugDraw = 0)=>{
 				Ltype = rooms[Lcell].type
 			}
 
-			if(!dun.walls[strCoords(i, j)]){
-				dun.walls[strCoords(i, j)] = {}//vertical, horizontal
-			}
+			
 
 
 			if(cell!=Ucell &&((type=='main'||Utype=='main')||
 				(type=='block' || type=='ghost' || type=='secret') && (Utype!='ghost' && Utype!='block')||
 				(type!='block' && type!='ghost') && (Utype=='ghost' || Utype=='block' || Utype=='secret'))){
 				
+				if(!dun.walls[strCoords(i, j)]){
+					dun.walls[strCoords(i, j)] = {}//vertical, horizontal
+				}
+
 				if(!dun.walls[strCoords(i, j)].h){
 					dun.walls[strCoords(i, j)].h = 1
 				}
@@ -626,7 +628,13 @@ const dungeon = async (debugDraw = 0)=>{
 
 			if(cell!=Ucell &&(type=='secret'||Utype=='secret') &&
 				((type!='block' && type!='ghost' && type!='secret') || (Utype!='ghost' && Utype!='block' && Utype!='secret'))){
+
+				if(!dun.walls[strCoords(i, j)]){
+					dun.walls[strCoords(i, j)] = {}//vertical, horizontal
+				}
+
 				dun.walls[strCoords(i, j)].h = 3
+
 			}
 
 
@@ -636,6 +644,11 @@ const dungeon = async (debugDraw = 0)=>{
 			if(cell!=Lcell &&(((type=='main'||Ltype=='main'))||
 				(type=='block' || type=='ghost' || type=='secret') && (Ltype!='ghost' && Ltype!='block')||
 				(type!='block' && type!='ghost') && (Ltype=='ghost' || Ltype=='block' || Ltype=='secret'))){
+
+				if(!dun.walls[strCoords(i, j)]){
+					dun.walls[strCoords(i, j)] = {}//vertical, horizontal
+				}
+
 				if(!dun.walls[strCoords(i, j)].v){
 					dun.walls[strCoords(i, j)].v = 1
 				}//
@@ -643,6 +656,11 @@ const dungeon = async (debugDraw = 0)=>{
 
 			if(cell!=Lcell &&(type=='secret'||Ltype=='secret') &&
 				((type!='block' && type!='ghost' && type!='secret') || (Ltype!='ghost' && Ltype!='block' && Ltype!='secret'))){
+
+				if(!dun.walls[strCoords(i, j)]){
+					dun.walls[strCoords(i, j)] = {}//vertical, horizontal
+				}
+				
 				dun.walls[strCoords(i, j)].v = 3
 			}
 			
