@@ -5,6 +5,3 @@ body{
 canvas{
 	position: fixed;
 }
-#c{
-	z-index: 100;
-}

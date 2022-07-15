@@ -4,44 +4,15 @@ import triangulate from 'delaunay-triangulate';
 import {kruskal} from 'kruskal-mst'
 
 
-const canvas = document.createElement('canvas')
-canvas.setAttribute("id", 'c')
-document.body.appendChild(canvas)
-
-const ctx = canvas.getContext("2d")
-
 let _W = window.innerWidth
 let _H = window.innerHeight
-canvas.width = _W
-canvas.height = _H
+
 
 
 const dungeonRenderingFactor = 0.45
 const tileSize = 15 * dungeonRenderingFactor
 const genFactor = 1 * dungeonRenderingFactor
 const roomCount = 70
-
-
-
-//grid
-
-// const gridSize = 60
-
-// ctx.strokeStyle = "gray"
-// for(let i=-gridSize; i<=gridSize; i++){
-// 	ctx.beginPath()
-
-// 	ctx.moveTo(_W/2+i*tileSize, _H/2-gridSize*tileSize)
-// 	ctx.lineTo(_W/2+i*tileSize, _H/2+gridSize*tileSize)
-
-// 	ctx.moveTo(_W/2-gridSize*tileSize, _H/2+i*tileSize)
-// 	ctx.lineTo(_W/2+gridSize*tileSize, _H/2+i*tileSize)
-
-// 	ctx.closePath()
-// 	ctx.stroke()
-// }
-// ctx.strokeStyle = "black"
-
 
 
 
@@ -342,12 +313,7 @@ const dungeon = async (debugDraw = 0)=>{
 		if(s>1.2*av){
 			rooms[i].type = 'main'
 			mainRooms[i] = rooms[i]
-			//ctx.fillStyle = "red"
-		}//else{
-		// 	ctx.fillStyle = "darkcyan"
-		// }
-		// ctx.strokeRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
-		// ctx.fillRect(r.x+_W/2, r.y+_H/2, r.width, r.height)
+		}
 	}
 	const keys = Object.keys(mainRooms)
 
@@ -668,11 +634,22 @@ const dungeon = async (debugDraw = 0)=>{
 		}
 	}
 
-	ctx.strokeStyle = "gray"
-	ctx.lineWidth = 3
+	
 
 	//rendering
 	if(debugDraw){
+		const canvas = document.createElement('canvas')
+		canvas.setAttribute("id", 'c')
+		document.body.appendChild(canvas)
+
+		const ctx = canvas.getContext("2d")
+		canvas.width = _W
+		canvas.height = _H
+
+		ctx.strokeStyle = "gray"
+		ctx.lineWidth = 3
+
+
 		for(let i=dun.minX; i<=dun.maxX+1; i++){
 			for(let j=dun.minY; j<=dun.maxY+1; j++){
 				if(dun.grid[strCoords(i, j)]){

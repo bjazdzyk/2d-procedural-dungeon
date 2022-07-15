@@ -2,15 +2,20 @@ const strCoords = (x, y)=>{
 	return `${x}:${y}`
 }
 
+const mod = (n, m)=>{
+	return ((n % m) + m) % m;
+}
 
-const rendered = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
+const screenView = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
 
 	const cellX = Math.floor(x)
 	const cellY = Math.floor(y)
 
+	
 
-	const oX = (x%tileSize)*-1
-	const oY = (y%tileSize)*-1
+
+	const oX = (mod((x*tileSize), tileSize))*-1
+	const oY = (mod((y*tileSize), tileSize))*-1
 
 
 	const S = {
@@ -18,7 +23,13 @@ const rendered = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
 		walls:{},
 		offsetX:oX,
 		offsetY:oY,
+		rangeX:rangeX,
+		rangeY:rangeY,
+		tileSize:tileSize
 	}
+
+	rangeX = Math.ceil(rangeX/2)
+	rangeY = Math.ceil(rangeY/2)
 
 	let rx = 0
 	let ry = 0
@@ -46,10 +57,10 @@ const rendered = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
 
 				if(type=='ghost'){
 					value = 'block'
-				}else if(type=='main'){
-					value = 'main'
+				}else if(type=='secret'){
+					value = 'secretRoom'
 				}else{
-					value = 'corridor'
+					value = type
 				}
 
 			}else{
@@ -81,4 +92,4 @@ const rendered = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
 	return S
 }
 
-export {rendered}
+export {screenView}
