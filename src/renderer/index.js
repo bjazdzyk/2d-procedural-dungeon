@@ -1,19 +1,22 @@
 import Dungeon from './dungeon.js'
 import {screenView} from './screen.js'
 import {render} from './render.js'
+import {Player} from './player.js'
 
 
 //const
-const tileSize = 56//
-
+const tileSize = 56
+const playerSpeed = 0.05
+///
 
 //global
 let dungeon
 let _W, _H
 let renDistX
 let renDistY
+let keys = {}
 
-let x, y
+let player
 
 
 
@@ -45,21 +48,49 @@ const loop = ()=>{
 
 	resize()
 
-	const view = screenView(x, y, renDistX, renDistY, tileSize, dungeon)
 
+	if(keys['ArrowUp']){
+		player.move(0, -playerSpeed)
+	}
+	if(keys['ArrowDown']){
+		player.move(0, playerSpeed)
+	}
+	if(keys['ArrowLeft']){
+		player.move(-playerSpeed, 0)
+	}
+	if(keys['ArrowRight']){
+		player.move(playerSpeed, 0)
+	}
+
+	const view = screenView(player.x, player.y, renDistX, renDistY, tileSize, dungeon)
 	render(view, ctx)
 }
 
 
+
+//
 window.onload = ()=>{
 
 	Dungeon().then((res)=>{
 
 		dungeon = res
-		x = dungeon.startX
-		y = dungeon.startY
-		console.log(x, y)
+		const x = dungeon.startX
+		const y = dungeon.startY
+
+		player = new Player(dungeon, x, y)
 
 		loop()
 	})
 }
+
+
+
+
+
+
+window.addEventListener('keydown', (e)=>{
+	keys[e.code] = true
+})
+window.addEventListener('keyup', (e)=>{
+	keys[e.code] = null
+})

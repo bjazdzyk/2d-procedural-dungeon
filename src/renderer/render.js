@@ -26,7 +26,8 @@ const imgMap = {
 	'block':new Image(),
 	'secretRoom':new Image(),
 
-	'wall':new Image()
+	'wall':new Image(),
+	'secretWall':new Image(),
 }
 imgMap['corridor'].src = url('/CorridorTile.png')
 imgMap['main'].src = url('/MainTile.png')
@@ -34,6 +35,7 @@ imgMap['block'].src = url('/Block.png')
 imgMap['secretRoom'].src = url('/SecretTile.png')
 
 imgMap['wall'].src = url('/Wall.png')
+imgMap['secretWall'].src = url('/Wall.png')
 
 
 const render = (screenView, ctx)=>{
@@ -62,15 +64,37 @@ const render = (screenView, ctx)=>{
 			//walls
 			const w = screenView.walls[strCoords(i, j)]
 			if(w){
-				if(w.h == 'wall'){
-					ctx.drawImage(imgMap[w.h], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
+
+				let key = {}
+				
+				
+				if(w.h == 'secret'){
+
+					key.h = 'secretWall'
+
+				}else if(w.h == 'wall'){
+					key.h = w.h
+
 				}
-				if(w.v == 'wall'){
+
+				if(w.v == 'secret'){
+					key.v = 'secretWall'
+
+				}else if(w.v == 'wall'){
+					key.v = w.v
+
+				}
+
+
+				if(key.h){
+					ctx.drawImage(imgMap[key.h], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
+				}
+				if(key.v){
 					ctx.translate(i*tileSize+oX, j*tileSize+oY)
 					ctx.rotate(90 * Math.PI / 180);
 					ctx.translate(-(i*tileSize+oX), -(j*tileSize+oY))
 
-					ctx.drawImage(imgMap[w.v], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
+					ctx.drawImage(imgMap[key.v], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
 
 					ctx.translate(i*tileSize+oX, j*tileSize+oY)
 					ctx.rotate(-90 * Math.PI / 180);
