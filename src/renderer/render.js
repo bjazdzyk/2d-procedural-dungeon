@@ -43,22 +43,24 @@ const render = (screenView, ctx)=>{
 	const tileSize = screenView.tileSize
 	const oX = screenView.offsetX
 	const oY = screenView.offsetY
+	const soX = window.innerWidth/2 % screenView.tileSize
+	const soY = window.innerHeight/2 % screenView.tileSize
 
 
 	ctx.imageSmoothingEnabled = false;
 
-	for(let i=0; i<=screenView.rangeX+1; i++){
-		for(let j=0; j<=screenView.rangeY+1; j++){
+	for(let i=0; i<=screenView.rangeX+2; i++){
+		for(let j=0; j<=screenView.rangeY+2; j++){
 
 
 			//grid
-			ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+oX, j*tileSize+oY, tileSize, tileSize)
+			ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize, tileSize, tileSize)
 
 
 		}
 	}
-	for(let i=0; i<=screenView.rangeX+1; i++){
-		for(let j=0; j<=screenView.rangeY+1; j++){
+	for(let i=0; i<=screenView.rangeX+2; i++){
+		for(let j=0; j<=screenView.rangeY+2; j++){
 
 
 			//walls
@@ -87,18 +89,18 @@ const render = (screenView, ctx)=>{
 
 
 				if(key.h){
-					ctx.drawImage(imgMap[key.h], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
+					ctx.drawImage(imgMap[key.h], i*tileSize -tileSize/2 +oX+soX-tileSize, j*tileSize -tileSize/2 +oY+soY-tileSize, tileSize*2, tileSize)
 				}
 				if(key.v){
-					ctx.translate(i*tileSize+oX, j*tileSize+oY)
+					ctx.translate(i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize)
 					ctx.rotate(90 * Math.PI / 180);
-					ctx.translate(-(i*tileSize+oX), -(j*tileSize+oY))
+					ctx.translate(-(i*tileSize+oX+soX-tileSize), -(j*tileSize+oY+soY-tileSize))
 
-					ctx.drawImage(imgMap[key.v], i*tileSize -tileSize/2 +oX, j*tileSize -tileSize/2 +oY, tileSize*2, tileSize)
+					ctx.drawImage(imgMap[key.v], i*tileSize -tileSize/2 +oX+soX-tileSize, j*tileSize -tileSize/2 +oY+soY-tileSize, tileSize*2, tileSize)
 
-					ctx.translate(i*tileSize+oX, j*tileSize+oY)
+					ctx.translate(i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize)
 					ctx.rotate(-90 * Math.PI / 180);
-					ctx.translate(-(i*tileSize+oX), -(j*tileSize+oY))
+					ctx.translate(-(i*tileSize+oX+soX-tileSize), -(j*tileSize+oY+soY-tileSize))
 				}
 			}
 		}

@@ -6,7 +6,9 @@ const mod = (n, m)=>{
 	return ((n % m) + m) % m;
 }
 
-const screenView = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
+const screenView = (x, y, rangeX, rangeY, dungeon)=>{
+
+	const tileSize = dungeon.tileSize
 
 	const cellX = Math.floor(x)
 	const cellY = Math.floor(y)
@@ -68,7 +70,6 @@ const screenView = (x, y, rangeX, rangeY, tileSize, dungeon)=>{
 			}
 
 			S.grid[strCoords(rx, ry)] = value
-
 
 			//walls
 			const w = dungeon.walls[strCoords(i, j)]

@@ -5,7 +5,8 @@ import {Player} from './player.js'
 
 
 //const
-const tileSize = 56
+const tileSize = 50
+const playerSize = 25
 const playerSpeed = 0.05
 ///
 
@@ -49,35 +50,41 @@ const loop = ()=>{
 	resize()
 
 
-	if(keys['ArrowUp']){
+	if(keys['KeyW']){
 		player.move(0, -playerSpeed)
 	}
-	if(keys['ArrowDown']){
+	if(keys['KeyS']){
 		player.move(0, playerSpeed)
 	}
-	if(keys['ArrowLeft']){
+	if(keys['KeyA']){
 		player.move(-playerSpeed, 0)
 	}
-	if(keys['ArrowRight']){
+	if(keys['KeyD']){
 		player.move(playerSpeed, 0)
 	}
 
-	const view = screenView(player.x, player.y, renDistX, renDistY, tileSize, dungeon)
+	const view = screenView(player.x, player.y, renDistX, renDistY, dungeon)
 	render(view, ctx)
+
+	player.draw(ctx)
 }
 
 
 
-//
+
 window.onload = ()=>{
+
+	console.log("LOADING LEVEL")
 
 	Dungeon().then((res)=>{
 
 		dungeon = res
+		dungeon.tileSize = tileSize
+
 		const x = dungeon.startX
 		const y = dungeon.startY
 
-		player = new Player(dungeon, x, y)
+		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
 
 		loop()
 	})
