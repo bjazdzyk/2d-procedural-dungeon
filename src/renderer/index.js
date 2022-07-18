@@ -16,9 +16,11 @@ let _W, _H
 let renDistX
 let renDistY
 let keys = {}
+let lockKey = {}
 
 let player
 let camera
+
 
 
 
@@ -65,7 +67,7 @@ const loop = ()=>{
 	}
 
 
-	const view = screenView(camera.x, camera.y, renDistX, renDistY, dungeon)
+	const view = screenView(camera.x, camera.y, renDistX, renDistY, player.dungeon)
 	camera.render(view, player)
 }
 
@@ -74,7 +76,9 @@ const loop = ()=>{
 
 window.onload = ()=>{
 
-	console.log("LOADING LEVEL")
+
+	console.log("---------------LOADING LEVEL---------------")
+
 
 	Dungeon().then((res)=>{
 
@@ -89,18 +93,32 @@ window.onload = ()=>{
 
 		camera = new Camera(ctx)
 
+
+
+
+
+
+		window.addEventListener('keydown', (e)=>{
+			keys[e.code] = true
+
+
+
+			if(e.code == 'KeyF' && !lockKey['KeyF']){
+				
+				player.action()
+
+				lockKey['KeyF'] = true
+			}
+		})
+		window.addEventListener('keyup', (e)=>{
+			keys[e.code] = null
+			lockKey[e.code] = false
+		})
+
+
+
+
+
 		loop()
 	})
 }
-
-
-
-
-
-
-window.addEventListener('keydown', (e)=>{
-	keys[e.code] = true
-})
-window.addEventListener('keyup', (e)=>{
-	keys[e.code] = null
-})

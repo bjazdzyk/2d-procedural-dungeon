@@ -15,6 +15,12 @@ const strCoords = (x, y)=>{
 }
 
 
+const hitWall = (w)=>{
+	return w == 1 || w == 2 || w == 3
+
+}
+
+
 export class Player{
 	constructor(src, x, y, width, height, dungeon){
 		this.dungeon = dungeon
@@ -72,24 +78,67 @@ export class Player{
 			DRV = walls[strCoords(...DR)].v
 		}
 
-
-
-		if((!(URV==1 && ULV==1) && !(DRV==1 && DLV==1)) || (DR[0]==DL[0] && UR[0]==UL[0])){
+		if((!(hitWall(URV) && hitWall(ULV)) && !(hitWall(DRV) && hitWall(DLV))) || (DR[0]==DL[0] && UR[0]==UL[0])){
 
 			this.x += dx
-
 		}else{
 			//console.log('x', UL[0], UR[0], DR[0], DL[0])
 		}
 
-		if((!(ULH==1 && DLH==1) && !(URH==1 && DRH==1)) || (DR[1]==UR[1] && DL[1]==UL[1])){
+		if((!(hitWall(ULH) && hitWall(DLH)) && !(hitWall(URH) && hitWall(DRH))) || (DR[1]==UR[1] && DL[1]==UL[1])){
 
 			this.y += dy
-
 		}else{
 			//console.log('y', UL[1], UR[1], DR[1], DL[1])
 		}
 
+	}
+	action(){
+
+		const walls = this.dungeon.walls
+
+		const C = [Math.floor(this.x), Math.floor(this.y)]
+
+		let L, U, R, D
+
+		if(walls[strCoords(...C)]){
+			U = walls[strCoords(...C)].h
+			L = walls[strCoords(...C)].v
+
+			if(U == 2 || L == 2){
+				let v = walls[strCoords(...C)].v
+				let h = walls[strCoords(...C)].h
+				this.dungeon.walls[strCoords(...C)].h = v
+				this.dungeon.walls[strCoords(...C)].v = h
+				
+			}
+
+		}
+
+		if(walls[strCoords(C[0]+1, C[1])]){
+			R = walls[strCoords(C[0]+1, C[1])].v
+
+			if(R == 2){
+				let v = walls[strCoords(C[0]+1, C[1])].v
+				let h = walls[strCoords(C[0]+1, C[1])].h
+				this.dungeon.walls[strCoords(C[0]+1, C[1])].h = v
+				this.dungeon.walls[strCoords(C[0]+1, C[1])].v = h
+			}
+		}
+
+		if(walls[strCoords(C[0], C[1]+1)]){
+			D = walls[strCoords(C[0], C[1]+1)].h
+
+			if(D == 2){
+				let v = walls[strCoords(C[0], C[1]+1)].v
+				let h = walls[strCoords(C[0], C[1]+1)].h
+				this.dungeon.walls[strCoords(C[0], C[1]+1)].h = v
+				this.dungeon.walls[strCoords(C[0], C[1]+1)].v = h
+			}
+		}
+
+
+		//console.log(L, U, R, D)
 	}
 
 	draw(ctx, offX, offY){
@@ -108,9 +157,9 @@ export class Player{
 		//circular gradient
 		const s = simplex.noise2D(0, Date.now()/5000)*50 + simplex.noise2D(70, Date.now()/1000)*50
 
-		var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 500 + s);
-		grd.addColorStop(0.5, "rgba(0, 0, 0, 0.0)");
-		grd.addColorStop(1, "rgba(0, 0, 0, 1.0)");
+		var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 400 + s);
+		grd.addColorStop(0.5, "rgba(10, 10, 20, 0.0)");
+		grd.addColorStop(1, "rgba(10, 10, 20, 1.0)");
 
 		// Fill with gradient
 		ctx.fillStyle = grd;

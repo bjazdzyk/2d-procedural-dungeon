@@ -152,7 +152,7 @@ export class Camera{
 		const cx = _W/2 + this.cameraOffX*tileSize
 		const cy = _H/2 + this.cameraOffY*tileSize
 
-		const shadowColor = "rgba(0, 0, 0, 1.0)"
+		const shadowColor = "rgba(10, 10, 20, 1.0)"
 
 		//shadows
 		for(let i=0; i<=screenView.rangeX+2; i++){
@@ -162,7 +162,7 @@ export class Camera{
 				const w = screenView.walls[strCoords(i, j)]
 				if(w){
 
-					if(w.h == 'wall'){
+					if(w.h == 'wall' || w.h == 'door' ||w.h == 'secret'){
 						ctx.fillStyle = shadowColor
 						ctx.strokeStyle = shadowColor
 						ctx.lineWidth = 1
@@ -182,7 +182,7 @@ export class Camera{
 						ctx.fill()
 
 					}
-					if(w.v == 'wall'){
+					if(w.v == 'wall' || w.v == 'door' ||w.v == 'secret'){
 						ctx.fillStyle = shadowColor
 						ctx.strokeStyle = shadowColor
 						ctx.lineWidth = 1
