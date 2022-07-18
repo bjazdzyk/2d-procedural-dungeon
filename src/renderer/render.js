@@ -1,5 +1,6 @@
 import path from 'path'
 
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const url = (src)=>{
@@ -37,78 +38,181 @@ imgMap['secretRoom'].src = url('/SecretTile.png')
 imgMap['wall'].src = url('/Wall.png')
 imgMap['secretWall'].src = url('/Wall.png')
 
+export class Camera{
+	constructor(ctx){
+		this.ctx = ctx
 
-const render = (screenView, ctx)=>{
+		this.x
+		this.y
 
-	const tileSize = screenView.tileSize
-	const oX = screenView.offsetX
-	const oY = screenView.offsetY
-	const soX = window.innerWidth/2 % screenView.tileSize
-	const soY = window.innerHeight/2 % screenView.tileSize
+		this.cameraOffX = 0
+		this.cameraOffY = 0
 
-
-	ctx.imageSmoothingEnabled = false;
-
-	for(let i=0; i<=screenView.rangeX+2; i++){
-		for(let j=0; j<=screenView.rangeY+2; j++){
-
-
-			//grid
-			ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize, tileSize, tileSize)
-
-
-		}
 	}
-	for(let i=0; i<=screenView.rangeX+2; i++){
-		for(let j=0; j<=screenView.rangeY+2; j++){
+	render(screenView, player){
+
+		const ctx = this.ctx
 
 
-			//walls
-			const w = screenView.walls[strCoords(i, j)]
-			if(w){
+		if(!this.x){
+			this.x = player.x
+			this.cameraOffX = 0
+		}else{
+			this.cameraOffX = player.x-this.x
 
-				let key = {}
-				
-				
-				if(w.h == 'secret'){
+			this.x+=this.cameraOffX*0.05
+		}
 
-					key.h = 'secretWall'
 
-				}else if(w.h == 'wall'){
-					key.h = w.h
+		if(!this.y){
+			this.y = player.y
+			this.cameraOffY = 0
+		}else{
+			this.cameraOffY = player.y-this.y
 
+			this.y+=this.cameraOffY*0.05
+		}
+
+
+		const tileSize = screenView.tileSize
+		const oX = screenView.offsetX
+		const oY = screenView.offsetY
+		const soX = window.innerWidth/2 % screenView.tileSize
+		const soY = window.innerHeight/2 % screenView.tileSize
+
+		const _W = window.innerWidth
+		const _H = window.innerHeight
+
+		const offsetX = oX+soX-tileSize
+		const offsetY = oY+soY-tileSize
+
+		ctx.imageSmoothingEnabled = false;
+
+
+		//grid
+		for(let i=0; i<=screenView.rangeX+2; i++){
+			for(let j=0; j<=screenView.rangeY+2; j++){
+
+				if(screenView.grid[strCoords(i, j)]){
+					ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+offsetX, j*tileSize+offsetY, tileSize, tileSize)
 				}
 
-				if(w.v == 'secret'){
-					key.v = 'secretWall'
 
-				}else if(w.v == 'wall'){
-					key.v = w.v
+			}
+		}
 
-				}
+		//walls
+		for(let i=0; i<=screenView.rangeX+2; i++){
+			for(let j=0; j<=screenView.rangeY+2; j++){
 
 
-				if(key.h){
-					ctx.drawImage(imgMap[key.h], i*tileSize -tileSize/2 +oX+soX-tileSize, j*tileSize -tileSize/2 +oY+soY-tileSize, tileSize*2, tileSize)
-				}
-				if(key.v){
-					ctx.translate(i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize)
-					ctx.rotate(90 * Math.PI / 180);
-					ctx.translate(-(i*tileSize+oX+soX-tileSize), -(j*tileSize+oY+soY-tileSize))
+				const w = screenView.walls[strCoords(i, j)]
+				if(w){
 
-					ctx.drawImage(imgMap[key.v], i*tileSize -tileSize/2 +oX+soX-tileSize, j*tileSize -tileSize/2 +oY+soY-tileSize, tileSize*2, tileSize)
+					let key = {}
+					
+					
+					if(w.h == 'secret'){
 
-					ctx.translate(i*tileSize+oX+soX-tileSize, j*tileSize+oY+soY-tileSize)
-					ctx.rotate(-90 * Math.PI / 180);
-					ctx.translate(-(i*tileSize+oX+soX-tileSize), -(j*tileSize+oY+soY-tileSize))
+						key.h = 'secretWall'
+
+					}else if(w.h == 'wall'){
+						key.h = w.h
+
+					}
+
+					if(w.v == 'secret'){
+						key.v = 'secretWall'
+
+					}else if(w.v == 'wall'){
+						key.v = w.v
+
+					}
+
+
+
+					if(key.h){
+						ctx.drawImage(imgMap[key.h], i*tileSize -tileSize/2 +offsetX, j*tileSize -tileSize/2 +offsetY, tileSize*2, tileSize)
+					}
+					if(key.v){
+						ctx.translate(i*tileSize+offsetX, j*tileSize+offsetY)
+						ctx.rotate(90 * Math.PI / 180);
+						ctx.translate(-(i*tileSize+offsetX), -(j*tileSize+offsetY))
+
+						ctx.drawImage(imgMap[key.v], i*tileSize -tileSize/2 +offsetX, j*tileSize -tileSize/2 +offsetY, tileSize*2, tileSize)
+
+						ctx.translate(i*tileSize+offsetX, j*tileSize+offsetY)
+						ctx.rotate(-90 * Math.PI / 180);
+						ctx.translate(-(i*tileSize+offsetX), -(j*tileSize+offsetY))
+					}
 				}
 			}
 		}
+
+		const cx = _W/2 + this.cameraOffX*tileSize
+		const cy = _H/2 + this.cameraOffY*tileSize
+
+		const shadowColor = "rgba(0, 0, 0, 1.0)"
+
+		//shadows
+		for(let i=0; i<=screenView.rangeX+2; i++){
+			for(let j=0; j<=screenView.rangeY+2; j++){
+
+
+				const w = screenView.walls[strCoords(i, j)]
+				if(w){
+
+					if(w.h == 'wall'){
+						ctx.fillStyle = shadowColor
+						ctx.strokeStyle = shadowColor
+						ctx.lineWidth = 1
+
+						const dx1 = cx - (i*tileSize+offsetX)
+						const dx2 = cx - ((i+1)*tileSize+offsetX)
+						const dy  = cy - (j*tileSize+offsetY)
+
+						ctx.beginPath()
+						ctx.moveTo(cx-dx1*1000, cy-dy*1000)
+						ctx.lineTo(cx-dx1, cy-dy)
+						ctx.lineTo(cx-dx2, cy-dy)
+						ctx.lineTo(cx-dx2*1000, cy-dy*1000)
+						ctx.closePath()
+
+						ctx.stroke()
+						ctx.fill()
+
+					}
+					if(w.v == 'wall'){
+						ctx.fillStyle = shadowColor
+						ctx.strokeStyle = shadowColor
+						ctx.lineWidth = 1
+
+						const dx  = cx - (i*tileSize+offsetX)
+						const dy1 = cy - (j*tileSize+offsetY)
+						const dy2 = cy - ((j+1)*tileSize+offsetY)
+
+						ctx.beginPath()
+						ctx.moveTo(cx-dx*1000, cy-dy1*1000)
+						ctx.lineTo(cx-dx, cy-dy1)
+						ctx.lineTo(cx-dx, cy-dy2)
+						ctx.lineTo(cx-dx*1000, cy-dy2*1000)
+						ctx.closePath()
+
+						ctx.stroke()
+						ctx.fill()
+
+					}
+				}
+			}
+		}
+
+
+		player.draw(ctx, this.cameraOffX, this.cameraOffY)
+
+
+
+
+
 	}
-
-
-
 }
 
-
-export {render}

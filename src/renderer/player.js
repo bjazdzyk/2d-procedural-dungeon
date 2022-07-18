@@ -1,4 +1,7 @@
 import path from 'path'
+import SimplexNoise from 'simplex-noise'
+
+const simplex = new SimplexNoise()
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -71,29 +74,48 @@ export class Player{
 
 
 
-		if(!(URV==1 && ULV==1) && 
-			!(DRV==1 && DLV==1)){
+		if((!(URV==1 && ULV==1) && !(DRV==1 && DLV==1)) || (DR[0]==DL[0] && UR[0]==UL[0])){
 
 			this.x += dx
 
+		}else{
+			//console.log('x', UL[0], UR[0], DR[0], DL[0])
 		}
 
-		if(!(ULH==1 && DLH==1) && 
-			!(URH==1 && DRH==1)){
+		if((!(ULH==1 && DLH==1) && !(URH==1 && DRH==1)) || (DR[1]==UR[1] && DL[1]==UL[1])){
 
 			this.y += dy
 
+		}else{
+			//console.log('y', UL[1], UR[1], DR[1], DL[1])
 		}
+
 	}
 
-	draw(ctx){
+	draw(ctx, offX, offY){
 		const _W = window.innerWidth
 		const _H = window.innerHeight
 
-		const x = (_W-this.width)/2
-		const y = (_H-this.height)/2
+		const cx = _W/2 + offX*this.dungeon.tileSize
+		const cy = _H/2 + offY*this.dungeon.tileSize
+
+		const x = cx - this.width/2
+		const y = cy - this.height/2
 
 		ctx.drawImage(this.img, x, y, this.width, this.height)
+
+
+		//circular gradient
+		const s = simplex.noise2D(0, Date.now()/5000)*50 + simplex.noise2D(70, Date.now()/1000)*50
+
+		var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 500 + s);
+		grd.addColorStop(0.5, "rgba(0, 0, 0, 0.0)");
+		grd.addColorStop(1, "rgba(0, 0, 0, 1.0)");
+
+		// Fill with gradient
+		ctx.fillStyle = grd;
+		ctx.fillRect(0, 0, _W, _H);
+	
 	}
 
 

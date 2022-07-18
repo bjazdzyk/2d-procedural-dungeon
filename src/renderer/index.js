@@ -1,13 +1,13 @@
 import Dungeon from './dungeon.js'
 import {screenView} from './screen.js'
-import {render} from './render.js'
+import {Camera} from './render.js'
 import {Player} from './player.js'
 
 
 //const
-const tileSize = 50
-const playerSize = 25
-const playerSpeed = 0.05
+const tileSize = 70
+const playerSize = 30
+const playerSpeed = 0.06
 ///
 
 //global
@@ -18,6 +18,7 @@ let renDistY
 let keys = {}
 
 let player
+let camera
 
 
 
@@ -63,10 +64,9 @@ const loop = ()=>{
 		player.move(playerSpeed, 0)
 	}
 
-	const view = screenView(player.x, player.y, renDistX, renDistY, dungeon)
-	render(view, ctx)
 
-	player.draw(ctx)
+	const view = screenView(camera.x, camera.y, renDistX, renDistY, dungeon)
+	camera.render(view, player)
 }
 
 
@@ -85,6 +85,9 @@ window.onload = ()=>{
 		const y = dungeon.startY
 
 		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
+
+
+		camera = new Camera(ctx)
 
 		loop()
 	})
