@@ -79,17 +79,17 @@ export class Player{
 		}
 
 		if((!(hitWall(URV) && hitWall(ULV)) && !(hitWall(DRV) && hitWall(DLV))) || (DR[0]==DL[0] && UR[0]==UL[0])){
-
-			this.x += dx
-		}else{
-			//console.log('x', UL[0], UR[0], DR[0], DL[0])
+			//suwak glitch
+			if((!(hitWall(URH) && hitWall(DRH)) && !(hitWall(ULH) && hitWall(DLH))) || (UR[1]==DR[1] && UL[1]==DL[1])){
+				this.x += dx
+			}
 		}
 
 		if((!(hitWall(ULH) && hitWall(DLH)) && !(hitWall(URH) && hitWall(DRH))) || (DR[1]==UR[1] && DL[1]==UL[1])){
 
-			this.y += dy
-		}else{
-			//console.log('y', UL[1], UR[1], DR[1], DL[1])
+			if((!(hitWall(ULV) && hitWall(URV)) && !(hitWall(DLV) && hitWall(DRV))) || (DR[0]==DL[0] && UR[0]==UL[0])){
+				this.y += dy
+			}
 		}
 
 	}
