@@ -2,6 +2,7 @@ import Dungeon from './dungeon.js'
 import {screenView} from './screen.js'
 import {Camera} from './render.js'
 import {Player} from './player.js'
+import {Gun, Bullet} from './guns.js'
 
 
 //const
@@ -20,6 +21,8 @@ let lockKey = {}
 
 let player
 let camera
+
+let mouseKeys = [false, false, false]
 
 
 
@@ -66,6 +69,10 @@ const loop = ()=>{
 		player.move(playerSpeed, 0)
 	}
 
+	if(mouseKeys[0]){
+		player.attack()
+	}
+
 
 	const view = screenView(camera.x, camera.y, renDistX, renDistY, player.dungeon)
 	camera.render(view, player)
@@ -75,7 +82,6 @@ const loop = ()=>{
 
 
 window.onload = ()=>{
-
 
 	console.log("---------------LOADING LEVEL---------------")
 
@@ -88,7 +94,10 @@ window.onload = ()=>{
 		const x = dungeon.startX
 		const y = dungeon.startY
 
+
 		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
+		player.weapon = new Gun('colt')
+
 
 
 		camera = new Camera(ctx)
@@ -111,8 +120,22 @@ window.onload = ()=>{
 			}
 		})
 		window.addEventListener('keyup', (e)=>{
-			keys[e.code] = null
+			delete(keys[e.code])
 			lockKey[e.code] = false
+		})
+
+
+
+		window.addEventListener('mousedown', (e)=>{
+			mouseKeys[e.button] = true
+		})
+		window.addEventListener('mouseup', (e)=>{
+			mouseKeys[e.button] = false
+		})
+
+		window.addEventListener('mousemove', (e)=>{
+			player.weapon.mx = e.x
+			player.weapon.my = e.y
 		})
 
 

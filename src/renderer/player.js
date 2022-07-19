@@ -154,6 +154,9 @@ export class Player{
 		ctx.drawImage(this.img, x, y, this.width, this.height)
 
 
+		this.weapon.draw(ctx, cx, cy)
+
+
 		//circular gradient
 		const s = simplex.noise2D(0, Date.now()/5000)*50 + simplex.noise2D(70, Date.now()/1000)*50
 
@@ -165,6 +168,11 @@ export class Player{
 		ctx.fillStyle = grd;
 		ctx.fillRect(0, 0, _W, _H);
 	
+	}
+
+	attack(){
+		this.weapon.shoot()
+		console.log(this.weapon)
 	}
 
 
