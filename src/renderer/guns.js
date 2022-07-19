@@ -48,7 +48,7 @@ class Gun{
 	}
 
 	draw(ctx, x, y){
-		
+		//
 		const dx = this.mx - x
 		const dy = this.my - y
 

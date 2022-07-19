@@ -29,6 +29,7 @@ const imgMap = {
 
 	'wall':new Image(),
 	'secretWall':new Image(),
+	'door':new Image()
 }
 imgMap['corridor'].src = url('/CorridorTile.png')
 imgMap['main'].src = url('/MainTile.png')
@@ -37,6 +38,7 @@ imgMap['secretRoom'].src = url('/SecretTile.png')
 
 imgMap['wall'].src = url('/Wall.png')
 imgMap['secretWall'].src = url('/Wall.png')
+imgMap['door'].src = url('/Door.png')//
 
 export class Camera{
 	constructor(ctx){
@@ -116,7 +118,7 @@ export class Camera{
 
 						key.h = 'secretWall'
 
-					}else if(w.h == 'wall'){
+					}else if(w.h == 'wall' || w.h == 'door'){
 						key.h = w.h
 
 					}
@@ -124,7 +126,7 @@ export class Camera{
 					if(w.v == 'secret'){
 						key.v = 'secretWall'
 
-					}else if(w.v == 'wall'){
+					}else if(w.v == 'wall' || w.v == 'door'){
 						key.v = w.v
 
 					}
