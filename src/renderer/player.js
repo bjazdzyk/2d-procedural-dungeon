@@ -145,16 +145,30 @@ export class Player{
 		const _W = window.innerWidth
 		const _H = window.innerHeight
 
+		const drw = this.width*1.5
+		const drh = this.width*1.5
+
 		const cx = _W/2 + offX*this.dungeon.tileSize
 		const cy = _H/2 + offY*this.dungeon.tileSize
 
-		const x = cx - this.width/2
-		const y = cy - this.height/2
-
-		ctx.drawImage(this.img, x, y, this.width, this.height)
+		const x = cx - drw/2
+		const y = cy - drh/2
 
 
-		this.weapon.draw(ctx, cx, cy)
+		const flip = this.weapon.mx<cx
+
+		if(flip){
+			ctx.translate(_W, 0)
+			ctx.scale(-1, 1)
+			ctx.translate(_W-cx, cy)
+		}else{
+			ctx.translate(cx, cy)
+		}
+		
+		ctx.drawImage(this.img, -drw/2, -drh/2, drw, drh)
+		ctx.resetTransform()
+
+		this.weapon.draw(ctx, cx, cy+drh*0.05, drw*2)
 
 
 		//circular gradient

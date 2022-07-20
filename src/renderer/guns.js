@@ -47,7 +47,7 @@ class Gun{
 		this.img.src = this.metaData.imgSrc
 	}
 
-	draw(ctx, x, y){
+	draw(ctx, x, y, size){
 		//
 		const dx = this.mx - x
 		const dy = this.my - y
@@ -56,7 +56,7 @@ class Gun{
 		
 		
 		
-		const hs = 30
+		const hs = size/2 *0.7
 		const _W = window.innerWidth
 		const _H = window.innerHeight
 
