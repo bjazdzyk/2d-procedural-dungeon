@@ -20,6 +20,7 @@ const hitWall = (w)=>{
 
 }
 
+let animation
 
 export class Player{
 	constructor(src, x, y, width, height, dungeon){
@@ -27,11 +28,33 @@ export class Player{
 		
 		this.x = x
 		this.y = y
+
 		this.width = width
 		this.height = height
 
+		this.prevX = x
+		this.prevy = y
+
 		this.img = new Image()
 		this.img.src = url(src)
+
+		this.previousAnimation = null
+		this.currentAnimation = 'Idle'
+		this.frameId = 0
+
+		this.animations = {
+			Idle:{
+				cells:[[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
+				msPerFrame: 300,
+			},
+			Walk:{
+				cells:[[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [0, 2], [1, 2], [2, 2]],
+				msPerFrame: 100
+			}
+		}
+		this.animationTimeStamp = Date.now()
+		this.frame = [0, 0, 20, 20]
+		this.frameSize = 20
 	}
 
 	move(dx, dy){
@@ -142,6 +165,7 @@ export class Player{
 	}
 
 	draw(ctx, offX, offY){
+		
 		const _W = window.innerWidth
 		const _H = window.innerHeight
 
@@ -157,6 +181,37 @@ export class Player{
 
 		const flip = this.weapon.mx<cx
 
+
+		if(this.prevX != this.x || this.prevY != this.y){
+			this.prevX = this.x
+			this.prevY = this.y
+			this.currentAnimation = 'Walk'
+		}else{
+			this.currentAnimation = 'Idle'
+		}
+		if(this.currentAnimation != this.previousAnimation){
+
+			this.previousAnimation = this.currentAnimation
+			this.frameId = 0
+
+			const x = this.animations[this.currentAnimation].cells[this.frameId][0]*this.frameSize
+			const y = this.animations[this.currentAnimation].cells[this.frameId][1]*this.frameSize
+
+			this.frame = [x, y, this.frameSize, this.frameSize]
+		}
+
+		if(Date.now()-this.animationTimeStamp >= this.animations[this.currentAnimation].msPerFrame){
+
+			this.animationTimeStamp = Date.now()
+			this.frameId = (this.frameId + 1)%this.animations[this.currentAnimation].cells.length
+
+			const x = this.animations[this.currentAnimation].cells[this.frameId][0]*this.frameSize
+			const y = this.animations[this.currentAnimation].cells[this.frameId][1]*this.frameSize
+
+			this.frame = [x, y, this.frameSize, this.frameSize]
+		}
+
+
 		if(flip){
 			ctx.translate(_W, 0)
 			ctx.scale(-1, 1)
@@ -165,7 +220,7 @@ export class Player{
 			ctx.translate(cx, cy)
 		}
 		
-		ctx.drawImage(this.img, -drw/2, -drh/2, drw, drh)
+		ctx.drawImage(this.img, ...this.frame, -drw/2, -drh/2, drw, drh)
 		ctx.resetTransform()
 
 		this.weapon.draw(ctx, cx, cy+drh*0.05, drw*2)

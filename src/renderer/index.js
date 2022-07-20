@@ -74,6 +74,7 @@ const loop = ()=>{
 	}
 
 
+
 	const view = screenView(camera.x, camera.y, renDistX, renDistY, player.dungeon)
 	camera.render(view, player)
 }
