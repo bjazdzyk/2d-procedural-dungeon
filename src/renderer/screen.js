@@ -6,7 +6,9 @@ const mod = (n, m)=>{
 	return ((n % m) + m) % m;
 }
 
-const screenView = (x, y, rangeX, rangeY, dungeon)=>{
+const screenView = (x, y, rangeX, rangeY, player)=>{
+
+	const dungeon = player.dungeon
 
 	const tileSize = dungeon.tileSize
 

@@ -71,11 +71,14 @@ const loop = ()=>{
 
 	if(mouseKeys[0]){
 		player.attack()
+		player.weapon.firstClick = false
+	}else{
+		player.weapon.firstClick = true
 	}
 
 
 
-	const view = screenView(camera.x, camera.y, renDistX, renDistY, player.dungeon)
+	const view = screenView(camera.x, camera.y, renDistX, renDistY, player)
 	camera.render(view, player)
 }
 

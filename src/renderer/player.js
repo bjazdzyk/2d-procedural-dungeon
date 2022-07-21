@@ -29,6 +29,9 @@ export class Player{
 		this.x = x
 		this.y = y
 
+		this.cx = window.innerWidth/2
+		this.cy = window.innerHeight/2
+
 		this.width = width
 		this.height = height
 
@@ -172,14 +175,14 @@ export class Player{
 		const drw = this.width*1.5
 		const drh = this.width*1.5
 
-		const cx = _W/2 + offX*this.dungeon.tileSize
-		const cy = _H/2 + offY*this.dungeon.tileSize
+		this.cx = _W/2 + offX*this.dungeon.tileSize
+		this.cy = _H/2 + offY*this.dungeon.tileSize
 
-		const x = cx - drw/2
-		const y = cy - drh/2
+		const x = this.cx - drw/2
+		const y = this.cy - drh/2
 
 
-		const flip = this.weapon.mx<cx
+		const flip = this.weapon.mx<this.cx
 
 
 		if(this.prevX != this.x || this.prevY != this.y){
@@ -194,10 +197,10 @@ export class Player{
 			this.previousAnimation = this.currentAnimation
 			this.frameId = 0
 
-			const x = this.animations[this.currentAnimation].cells[this.frameId][0]*this.frameSize
-			const y = this.animations[this.currentAnimation].cells[this.frameId][1]*this.frameSize
+			const fx = this.animations[this.currentAnimation].cells[this.frameId][0]*this.frameSize
+			const fy = this.animations[this.currentAnimation].cells[this.frameId][1]*this.frameSize
 
-			this.frame = [x, y, this.frameSize, this.frameSize]
+			this.frame = [fx, fy, this.frameSize, this.frameSize]
 		}
 
 		if(Date.now()-this.animationTimeStamp >= this.animations[this.currentAnimation].msPerFrame){
@@ -215,21 +218,29 @@ export class Player{
 		if(flip){
 			ctx.translate(_W, 0)
 			ctx.scale(-1, 1)
-			ctx.translate(_W-cx, cy)
+			ctx.translate(_W-this.cx, this.cy)
 		}else{
-			ctx.translate(cx, cy)
+			ctx.translate(this.cx, this.cy)
 		}
 		
 		ctx.drawImage(this.img, ...this.frame, -drw/2, -drh/2, drw, drh)
 		ctx.resetTransform()
 
-		this.weapon.draw(ctx, cx, cy+drh*0.05, drw*2)
+
+		for(let i in this.weapon.bullets){
+			const bx = this.cx + (this.weapon.bullets[i].x - this.x)*this.dungeon.tileSize
+			const by = this.cy + (this.weapon.bullets[i].y - this.y)*this.dungeon.tileSize
+			this.weapon.bullets[i].draw(ctx, bx, by)
+		}
+
+
+		this.weapon.draw(ctx, this.cx, this.cy+drh*0.05, drw*2)
 
 
 		//circular gradient
 		const s = simplex.noise2D(0, Date.now()/5000)*50 + simplex.noise2D(70, Date.now()/1000)*50
 
-		var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 400 + s);
+		var grd = ctx.createRadialGradient(this.cx, this.cy, 0, this.cx, this.cy, 400 + s);
 		grd.addColorStop(0.5, "rgba(10, 10, 20, 0.0)");
 		grd.addColorStop(1, "rgba(10, 10, 20, 1.0)");
 
@@ -240,8 +251,7 @@ export class Player{
 	}
 
 	attack(){
-		this.weapon.shoot()
-		console.log(this.weapon)
+		this.weapon.shoot(this.x, this.y, this.cx, this.cy)
 	}
 
 
