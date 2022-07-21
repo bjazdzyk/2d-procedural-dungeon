@@ -100,7 +100,7 @@ window.onload = ()=>{
 
 
 		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
-		player.weapon = new Gun('colt')
+		player.weapon = new Gun('colt', player)
 
 
 

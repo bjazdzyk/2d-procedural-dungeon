@@ -241,8 +241,8 @@ export class Player{
 		const s = simplex.noise2D(0, Date.now()/5000)*50 + simplex.noise2D(70, Date.now()/1000)*50
 
 		var grd = ctx.createRadialGradient(this.cx, this.cy, 0, this.cx, this.cy, 400 + s);
-		grd.addColorStop(0.5, "rgba(10, 10, 20, 0.0)");
-		grd.addColorStop(1, "rgba(10, 10, 20, 1.0)");
+		grd.addColorStop(0.5, "rgba(0, 0, 0, 0.0)");
+		grd.addColorStop(1, "rgba(0, 0, 0, 1.0)");
 
 		// Fill with gradient
 		ctx.fillStyle = grd;

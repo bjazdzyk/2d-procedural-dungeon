@@ -7,6 +7,14 @@ const url = (src)=>{
 	return reto
 }
 
+const strCoords = (x, y)=>{
+	return `${x}:${y}`
+}
+
+const mod = (n, m)=>{
+	return ((n % m) + m) % m;
+}
+
 class Bullet{
 	constructor(type, size, speed, uniqueArgs){
 		this.type = type
@@ -49,18 +57,19 @@ class Bullet{
 
 const metaDataMap = {
 	colt:{
-		fireRate: 300,
+		fireRate: 400,
 		type: 'auto',
 		accuracy: Math.PI/4,
 		bulletsPerShot: 1,
-		bulletInfo: ['round', 6, 0.35, {}],
+		bulletInfo: ['round', 5, 0.3, {}],
 		imgSrc: url('/Colt.png')
 	}
 }
 
 
 class Gun{
-	constructor(name){
+	constructor(name, player){
+		this.player = player
 		this.setWeapon(name)
 
 		this.mx = 0
@@ -85,7 +94,6 @@ class Gun{
 	}
 
 	draw(ctx, x, y, size){
-		//
 		const dx = this.mx - x
 		const dy = this.my - y
 
@@ -115,8 +123,71 @@ class Gun{
 		ctx.resetTransform()
 
 
+		const walls = this.player.dungeon.walls
+
 		for(let i in this.bullets){
 			this.bullets[i].update()
+
+			const cellX = Math.floor(this.bullets[i].x)
+			const cellY = Math.floor(this.bullets[i].y)
+
+			let bulletDir
+
+
+			if(this.bullets[i].vy<0){
+				bulletDir = 'U'
+			}else{
+				bulletDir = 'D'
+			}
+			if(this.bullets[i].vx<0){
+				bulletDir += 'L'
+			}else{
+				bulletDir += 'R'
+			}
+			
+
+			if(bulletDir == 'DR'){
+				if(walls[strCoords(cellX, cellY)]){
+					delete(this.bullets[i])
+				}
+
+			}else if(bulletDir == 'UR'){
+				if(walls[strCoords(cellX, cellY)]){
+					if(walls[strCoords(cellX, cellY)].v){
+						delete(this.bullets[i])
+					}
+				}
+				if(walls[strCoords(cellX, cellY+1)]){
+					if(walls[strCoords(cellX, cellY+1)].h){
+						delete(this.bullets[i])
+					}
+				}
+
+			}else if(bulletDir == 'DL'){
+				if(walls[strCoords(cellX+1, cellY)]){
+					if(walls[strCoords(cellX+1, cellY)].v){
+						delete(this.bullets[i])
+					}
+				}
+				if(walls[strCoords(cellX, cellY)]){
+					if(walls[strCoords(cellX, cellY)].h){
+						delete(this.bullets[i])
+					}
+				}
+
+			}else if(bulletDir == 'UL'){
+				if(walls[strCoords(cellX+1, cellY)]){
+					if(walls[strCoords(cellX+1, cellY)].v){
+						delete(this.bullets[i])
+					}
+				}
+				if(walls[strCoords(cellX, cellY+1)]){
+					if(walls[strCoords(cellX, cellY+1)].h){
+						delete(this.bullets[i])
+					}
+				}
+
+			}
 		}
 
 

@@ -53,8 +53,10 @@ export class Camera{
 	}
 	render(screenView, player){
 
-		const ctx = this.ctx
+		const _W = window.innerWidth
+		const _H = window.innerHeight
 
+		const ctx = this.ctx
 
 		if(!this.x){
 			this.x = player.x
@@ -82,8 +84,6 @@ export class Camera{
 		const soX = window.innerWidth/2 % screenView.tileSize
 		const soY = window.innerHeight/2 % screenView.tileSize
 
-		const _W = window.innerWidth
-		const _H = window.innerHeight
 
 		const offsetX = oX+soX-tileSize
 		const offsetY = oY+soY-tileSize
@@ -154,7 +154,7 @@ export class Camera{
 		const cx = _W/2 + this.cameraOffX*tileSize
 		const cy = _H/2 + this.cameraOffY*tileSize
 
-		const shadowColor = "rgba(10, 10, 20, 1.0)"
+		const shadowColor = "rgba(0, 0, 0, 1.0)"
 
 		//shadows
 		for(let i=0; i<=screenView.rangeX+2; i++){
