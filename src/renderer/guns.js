@@ -164,7 +164,7 @@ class Gun{
 			for(let j in W){
 				if(W[j]){
 					if(intersects(...P[j], b.x, b.y, b.x+b.vx, b.y+b.vy) || !grid[strCoords(cellX, cellY)]){
-						
+						this.player.particleSystem.newParticle(b.x, b.y, 0, 0)
 						delete(this.bullets[i])
 						break
 					}

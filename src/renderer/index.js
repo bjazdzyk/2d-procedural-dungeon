@@ -102,7 +102,9 @@ window.onload = ()=>{
 
 		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
 		player.weapon = new Gun('colt', player)
-		player.particleSystem = new ParticleSystem()
+
+		player.particleSystem = new ParticleSystem(player)
+		player.particleSystem.newParticle()
 
 
 
