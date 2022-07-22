@@ -3,6 +3,7 @@ import {screenView} from './screen.js'
 import {Camera} from './render.js'
 import {Player} from './player.js'
 import {Gun, Bullet} from './guns.js'
+import {ParticleSystem} from './particles.js'
 
 
 //const
@@ -101,6 +102,7 @@ window.onload = ()=>{
 
 		player = new Player('/player.png', x, y, playerSize, playerSize, dungeon)
 		player.weapon = new Gun('colt', player)
+		player.particleSystem = new ParticleSystem()
 
 
 

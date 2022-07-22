@@ -96,7 +96,10 @@ export class Camera{
 			for(let j=0; j<=screenView.rangeY+2; j++){
 
 				if(screenView.grid[strCoords(i, j)]){
-					ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+offsetX, j*tileSize+offsetY, tileSize, tileSize)
+
+					if(screenView.grid[strCoords(i, j)]!='block'){
+						ctx.drawImage(imgMap[screenView.grid[strCoords(i, j)]], i*tileSize+offsetX, j*tileSize+offsetY, tileSize, tileSize)
+					}
 				}
 
 

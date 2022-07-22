@@ -14,6 +14,7 @@ const strCoords = (x, y)=>{
 const mod = (n, m)=>{
 	return ((n % m) + m) % m;
 }
+
 const intersects = (a,b,c,d,p,q,r,s)=>{
 	var det, gamma, lambda
 	det = (c - a) * (s - q) - (r - p) * (d - b)
@@ -25,6 +26,7 @@ const intersects = (a,b,c,d,p,q,r,s)=>{
 		return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)
 	}
 }
+
 
 class Bullet{
 	constructor(type, size, speed, uniqueArgs){
@@ -57,7 +59,7 @@ class Bullet{
 			ctx.arc(x, y, this.size, 0, Math.PI*2)
 			ctx.closePath()
 
-			ctx.fillStyle = 'white'
+			ctx.fillStyle = 'black'
 			ctx.fill()
 		}
 	}
