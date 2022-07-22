@@ -14,6 +14,17 @@ const strCoords = (x, y)=>{
 const mod = (n, m)=>{
 	return ((n % m) + m) % m;
 }
+const intersects = (a,b,c,d,p,q,r,s)=>{
+	var det, gamma, lambda
+	det = (c - a) * (s - q) - (r - p) * (d - b)
+	if (det === 0) {
+		return false
+	} else {
+		lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det
+		gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det
+		return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)
+	}
+}
 
 class Bullet{
 	constructor(type, size, speed, uniqueArgs){
@@ -131,63 +142,26 @@ class Gun{
 			const cellX = Math.floor(this.bullets[i].x)
 			const cellY = Math.floor(this.bullets[i].y)
 
-			let bulletDir
+			const W = [walls[strCoords(cellX, cellY)] ? walls[strCoords(cellX, cellY)].v : null,
+				walls[strCoords(cellX, cellY)] ? walls[strCoords(cellX, cellY)].h : null,
+				walls[strCoords(cellX+1, cellY)] ? walls[strCoords(cellX+1, cellY)].v: null,
+				walls[strCoords(cellX, cellY+1)] ? walls[strCoords(cellX, cellY+1)].h : null]
 
+			const P = [[cellX, cellY, cellX, cellY+1],
+				[cellX, cellY, cellX+1, cellY],
+				[cellX+1, cellY, cellX+1, cellY+1],
+				[cellX, cellY+1, cellX+1, cellY+1]]
 
-			if(this.bullets[i].vy<0){
-				bulletDir = 'U'
-			}else{
-				bulletDir = 'D'
-			}
-			if(this.bullets[i].vx<0){
-				bulletDir += 'L'
-			}else{
-				bulletDir += 'R'
+			const b = this.bullets[i]
+
+			for(let j in W){
+				if(W[j]){
+					if(intersects(...P[j], b.x, b.y, b.x+b.vx, b.y+b.vy)){
+						delete(this.bullets[i])
+					}
+				}
 			}
 			
-
-			if(bulletDir == 'DR'){
-				if(walls[strCoords(cellX, cellY)]){
-					delete(this.bullets[i])
-				}
-
-			}else if(bulletDir == 'UR'){
-				if(walls[strCoords(cellX, cellY)]){
-					if(walls[strCoords(cellX, cellY)].v){
-						delete(this.bullets[i])
-					}
-				}
-				if(walls[strCoords(cellX, cellY+1)]){
-					if(walls[strCoords(cellX, cellY+1)].h){
-						delete(this.bullets[i])
-					}
-				}
-
-			}else if(bulletDir == 'DL'){
-				if(walls[strCoords(cellX+1, cellY)]){
-					if(walls[strCoords(cellX+1, cellY)].v){
-						delete(this.bullets[i])
-					}
-				}
-				if(walls[strCoords(cellX, cellY)]){
-					if(walls[strCoords(cellX, cellY)].h){
-						delete(this.bullets[i])
-					}
-				}
-
-			}else if(bulletDir == 'UL'){
-				if(walls[strCoords(cellX+1, cellY)]){
-					if(walls[strCoords(cellX+1, cellY)].v){
-						delete(this.bullets[i])
-					}
-				}
-				if(walls[strCoords(cellX, cellY+1)]){
-					if(walls[strCoords(cellX, cellY+1)].h){
-						delete(this.bullets[i])
-					}
-				}
-
-			}
 		}
 
 
