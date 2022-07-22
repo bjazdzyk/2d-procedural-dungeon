@@ -57,7 +57,7 @@ class Bullet{
 			ctx.arc(x, y, this.size, 0, Math.PI*2)
 			ctx.closePath()
 
-			ctx.fillStyle = 'black'
+			ctx.fillStyle = 'white'
 			ctx.fill()
 		}
 	}
@@ -68,11 +68,11 @@ class Bullet{
 
 const metaDataMap = {
 	colt:{
-		fireRate: 400,
+		fireRate: 300,
 		type: 'auto',
 		accuracy: Math.PI/4,
 		bulletsPerShot: 1,
-		bulletInfo: ['round', 5, 0.3, {}],
+		bulletInfo: ['round', 5, 0.2, {}],
 		imgSrc: url('/Colt.png')
 	}
 }
@@ -135,9 +135,13 @@ class Gun{
 
 
 		const walls = this.player.dungeon.walls
+		const grid = this.player.dungeon.grid
 
 		for(let i in this.bullets){
 			this.bullets[i].update()
+
+			const b = this.bullets[i]
+			const s = b.speed
 
 			const cellX = Math.floor(this.bullets[i].x)
 			const cellY = Math.floor(this.bullets[i].y)
@@ -147,17 +151,20 @@ class Gun{
 				walls[strCoords(cellX+1, cellY)] ? walls[strCoords(cellX+1, cellY)].v: null,
 				walls[strCoords(cellX, cellY+1)] ? walls[strCoords(cellX, cellY+1)].h : null]
 
-			const P = [[cellX, cellY, cellX, cellY+1],
-				[cellX, cellY, cellX+1, cellY],
-				[cellX+1, cellY, cellX+1, cellY+1],
-				[cellX, cellY+1, cellX+1, cellY+1]]
 
-			const b = this.bullets[i]
+
+			const P = [[cellX+b.speed, cellY, cellX+b.speed, cellY+1],
+				[cellX, cellY+b.speed, cellX+1, cellY+b.speed],
+				[cellX+1-b.speed, cellY, cellX+1-b.speed, cellY+1],
+				[cellX, cellY+1-b.speed, cellX+1, cellY+1-b.speed]]
+
 
 			for(let j in W){
 				if(W[j]){
-					if(intersects(...P[j], b.x, b.y, b.x+b.vx, b.y+b.vy)){
+					if(intersects(...P[j], b.x, b.y, b.x+b.vx, b.y+b.vy) || !grid[strCoords(cellX, cellY)]){
+						
 						delete(this.bullets[i])
+						break
 					}
 				}
 			}
