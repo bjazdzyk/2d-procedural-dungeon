@@ -10,7 +10,7 @@ const url = (src)=>{
 
 const particleMeta = {
 	fire:{
-		type:'fire',
+		type:"fire",
 		img: new Image(),
 		cellSize: 20,
 		animationCount: 1,
@@ -74,7 +74,7 @@ class Particle{
 			const X = cx + dx*tileSize - this.size/2
 			const Y = cy + dy*tileSize - this.size/2
 
-			const frame =this.animation[this.frameId]
+			const frame = this.animation[this.frameId]
 
 			const cellX = frame[0]*this.meta.cellSize
 			const cellY = frame[1]*this.meta.cellSize
@@ -99,7 +99,75 @@ class Particle{
 }
 
 class Emiter{
-	constructor(){
+	constructor(player, throwRate, type, size, maxParticles = 100){
+		this.maxParticles = maxParticles
+		this.player = player
+		this.throwRate = throwRate
+		this.type = type
+		this.size = size
+
+		this.x = 0
+		this.y = 0
+		this.vx = 0
+		this.vy = 0
+
+
+		this.particleCount = 0
+		this.particles = {}
+
+		this.throwing = false
+		this.dead = false
+
+		this.throwTimeStamp = Date.now()
+
+	}
+	startThrowing(x, y, vx, vy){
+		this.x = x
+		this.y = y
+		this.vx = vx
+		this.vy = vy
+
+		this.throwing = true
+
+
+	}
+
+	draw(ctx){
+		if(this.throwing){
+			if(Date.now()-this.throwTimeStamp >= this.throwRate){
+				this.throwTimeStamp = Date.now()
+
+				this.particles[this.particleCount] = new Particle("fire", this.size)
+				this.particles[this.particleCount].throw(this.x, this.y, 0, 0)
+
+				this.particleCount ++
+				if(this.particleCount > this.maxParticles){
+					this.throwing = false
+				}
+
+			}
+			this.x+=this.vx
+			this.y+=this.vy
+
+		}
+		//console.log(this.particles)
+
+		for(let i in this.particles){
+			if(this.particles[i].dead){
+				delete(this.particles[i])
+			}else{
+
+				this.particles[i].draw(ctx, this.player.cx, this.player.cy, this.player.x, this.player.y, this.player.dungeon.tileSize)
+			}
+		}
+
+		if(this.particles.length < 1){
+			this.dead = true
+		}
+
+
+
+
 
 	}
 
@@ -112,12 +180,23 @@ class ParticleSystem{
 		this.particleCount = 0
 		this.particles = {}
 
+		this.emiterCount = 0
+		this.emiters = {}
+
 		
 	}
 	newParticle(x, y, vx, vy, ax=0, ay=0){
 		this.particles[this.particleCount] = new Particle('fire', 75)
 		this.particles[this.particleCount].throw(x, y, vx, vy, ax, ay)
 		this.particleCount ++
+	}
+	newEmiter(x, y, vx, vy){
+
+		this.emiters[this.emiterCount] = new Emiter(this.player, 2, 'type', 25, 1)
+		this.emiters[this.emiterCount].startThrowing(x, y, vx, vy)
+		this.emiterCount ++
+
+
 	}
 
 	drawParticles(ctx){
@@ -126,6 +205,14 @@ class ParticleSystem{
 				delete(this.particles[i])
 			}else{
 				this.particles[i].draw(ctx, this.player.cx, this.player.cy, this.player.x, this.player.y, this.player.dungeon.tileSize)
+			}
+		}
+
+		for(let i in this.emiters){
+			if(this.emiters[i].dead){
+				delete(this.emiters[i])
+			}else{
+				this.emiters[i].draw(ctx)
 			}
 		}
 	}

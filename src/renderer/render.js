@@ -154,6 +154,10 @@ export class Camera{
 			}
 		}
 
+		player.draw(ctx, this.cameraOffX, this.cameraOffY)
+
+		player.particleSystem.drawParticles(ctx)
+
 		const cx = _W/2 + this.cameraOffX*tileSize
 		const cy = _H/2 + this.cameraOffY*tileSize
 
@@ -210,10 +214,6 @@ export class Camera{
 				}
 			}
 		}
-
-
-		player.draw(ctx, this.cameraOffX, this.cameraOffY)
-
 
 
 

@@ -235,7 +235,6 @@ export class Player{
 
 
 		this.weapon.draw(ctx, this.cx, this.cy+drh*0.05, drw*2)
-		this.particleSystem.drawParticles(ctx)
 
 
 		//circular gradient
@@ -253,6 +252,7 @@ export class Player{
 
 	attack(){
 		
+
 		this.weapon.shoot(this.x, this.y, this.cx, this.cy)
 	}
 

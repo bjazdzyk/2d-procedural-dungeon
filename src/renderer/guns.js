@@ -201,6 +201,11 @@ class Gun{
 				this.bullets[this.bulletsThrown].x = x
 				this.bullets[this.bulletsThrown].y = y
 				this.bullets[this.bulletsThrown].throw(cx, cy, this.mx, this.my)
+
+
+				this.player.particleSystem.newEmiter(x, y, this.bullets[this.bulletsThrown].vx, this.bullets[this.bulletsThrown].vy)
+				
+
 			}
 		}
 		
